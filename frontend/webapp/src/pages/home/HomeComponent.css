@@ -49,6 +49,7 @@ font-size: small;
   overflow: hidden; /* Prevent content from overflowing */
   position: relative;
   display: block !important; /* !important is used to override react-slick's style */
+  flex: 1;
 }
 
 .slide-container { /* Style each individual slide */

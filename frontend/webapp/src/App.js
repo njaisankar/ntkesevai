@@ -1,12 +1,4 @@
 import React from 'react';
-//import $ from 'jquery'
-//import 'bootstrap/dist/js/bootstrap.min.js'; // Correct import path
-
-// import 'vegas'
-// import 'wow.js'
-// import './js/smoothscroll.js'
-//import './js/custom.js'
-
 import './App.css';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -17,6 +9,7 @@ import ForgotPasswordComponent from './pages/forgotpassword/ForgotPasswordCompon
 import RegisterComponent from './pages/register/RegisterComponent.js';
 function App() {
   return (
+    <div class='app'>
     <Router>
     <Routes>
       <Route path='/' element = {<HomeComponent />} />
@@ -26,6 +19,7 @@ function App() {
       <Route path='/dashboard' element = {<DashboardComponent/>} />
     </Routes>
     </Router>
+    </div>
   );
 }
 
