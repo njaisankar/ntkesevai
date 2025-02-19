@@ -253,8 +253,9 @@ footer {
   height: 100vh;
   color: #ffffff; 
   z-index: 1;
-  position: absolute;
+  position: absolute ;
   top: 50px;
+  display: block !important; /* !important is used to override react-slick's style */
 }
 
 #home .home-thumb {

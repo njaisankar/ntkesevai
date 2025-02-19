@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 import './HomeComponent.css';
-// import $ from 'jquery'
 import React, {useRef, useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import Slider from "react-slick";
@@ -20,15 +19,15 @@ const HomeComponent = (location) => {
   const [wrapSlideData, setSlideData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const settings = {
     dots: false, // Hide dots
     infinite: true,
-    speed: 10000,
+    speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true, // Auto-play slides
-    autoplaySpeed: 100, // Change slide every 3 seconds
+    autoplaySpeed: 3000, // Change slide every 3 seconds
     fade: true, // Use fade effect for smoother transitions
     arrows: false // Hide arrows if you don't need them  
   };
@@ -99,6 +98,18 @@ const HomeComponent = (location) => {
       setError({message: error.message});
       setLoading(false);
     });
+
+
+    // Preload images and handle errors (important!)
+    images.forEach(image => {
+      const img = new Image();
+      img.src = image;
+      img.onerror = () => {
+          console.error("Error loading image:", image);
+          setImageError(true); // Set error state if any image fails
+      };
+    });
+
   }, [location]); //add error message to the dependency array
 
   return (
@@ -132,7 +143,12 @@ const HomeComponent = (location) => {
               <Slider {...settings}>
                   {images.map((image, index) => (
                       <div key={index} className="slide-container">
-                          <div className="background-image" style={{backgroundImage: `url(${image})`}}></div>
+                          <div className="background-image" style={
+                            {
+                              backgroundImage: `url(${image})`,
+                                // Add className to the slider and the slides:
+                              slideClassName: "my-custom-slide", // Add a class to each slide
+                            }}></div>
                       </div>
                   ))}
               </Slider>

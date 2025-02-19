@@ -59,7 +59,7 @@ const RegisterComponent = (() => {
             </div>
             <div className='d-flex mb-3'>
               <div className='col-8'>
-                  <img class="img-fluid" src="media/images/register-v2.svg" alt='Login Home Page' />
+                  <img class="img-fluid" src="/assets/media/images/register-v2.svg" alt='Login Home Page' />
               </div>
 
               <div className='col-4 align-self-center'>

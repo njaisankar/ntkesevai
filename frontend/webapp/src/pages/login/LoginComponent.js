@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import feather from 'feather-icons'
 import './LoginComponent.css';
+
 const LoginComponent = (() => {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
@@ -14,29 +15,28 @@ const LoginComponent = (() => {
     const iconContainerRef = useRef(null); // Ref for the icon container
 
     useEffect(() => {
-      // Render the icons whenever showPassword changes
-      renderIcons();
+        // Render the icons whenever showPassword changes
+        renderIcons();
     }, [passwordVisible]);
-  
-  
+    
     const renderIcons = () => {
         if (iconContainerRef.current) {
-          iconContainerRef.current.innerHTML = ''; // Clear existing icon
-  
-          const iconName = passwordVisible ? 'eye' : 'eye-off';
-          const icon = feather.icons[iconName].toSvg(); // Get the SVG
-  
-          iconContainerRef.current.insertAdjacentHTML('beforeend', icon);
+            iconContainerRef.current.innerHTML = ''; // Clear existing icon
+
+            const iconName = passwordVisible ? 'eye' : 'eye-off';
+            const icon = feather.icons[iconName].toSvg(); // Get the SVG
+
+            iconContainerRef.current.insertAdjacentHTML('beforeend', icon);
         }
     }
   
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
 
-  const openWhatsAppChat = () => {
-    window.open('https://wa.me/YourWhatsAppNumber', '_blank');
-  };
+    const openWhatsAppChat = () => {
+        window.open('https://wa.me/YourWhatsAppNumber', '_blank');
+    };
 
     const handleSubmit = (event) =>{
         event.preventDefault(); 
@@ -81,7 +81,7 @@ const LoginComponent = (() => {
              </div>
              <div className='d-flex mb-3'>
                 <div className='col-8'>
-                    <img class="img-fluid" src="media/images/login-v2.svg" alt='Login Home Page' />
+                    <img class="img-fluid" src="/assets/media/images/login-v2.svg" alt='Login Home Page' />
                     
                 </div>
 

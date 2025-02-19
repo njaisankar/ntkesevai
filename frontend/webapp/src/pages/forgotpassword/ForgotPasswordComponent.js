@@ -36,7 +36,7 @@ const ForgotPasswordComponent = (() => {
                     </div>
                     <div className='d-flex mb-3'>
                         <div className='col-8'>
-                            <img class="img-fluid" src="media/images/forgot-password-v2.svg" alt='Login Home Page' />
+                            <img class="img-fluid" src="/assets/media/images/forgot-password-v2.svg" alt='Login Home Page' />
                         </div>
 
                         <div className='col-4 align-self-center'>
