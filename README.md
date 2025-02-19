@@ -1,1 +1,1 @@
-# ntkesevai
+# NTK E-Sevai application recreated based on old Python Django template website into Python Django Rest Framework for Backend and ReactJs for Frontend web application.

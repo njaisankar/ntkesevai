@@ -55,26 +55,6 @@ const LoginComponent = (() => {
         }
     };
 
-
-    
-//     const authUrl = 'http://127.0.0.1:8000/api-auth/login/';
-//     const authData = { username: 'njais', password: 'ntkesevai!980' };
-// //token 'bmphaXM6bnRrZXNldmFpITk4MA=='
-// fetch(authUrl, {
-//     method: 'POST',
-//     headers: {
-//         'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(authData)
-// })
-// .then(response => response.json())
-// .then(data => {
-//     const token = data.token;
-//     console.log('token ' + token)
-//     localStorage.setItem('authToken', token);
-// });
-
-
     const userApiUrl ='http://127.0.0.1:8000/users/';
     fetch(userApiUrl)
     .then(response => { 
@@ -130,7 +110,6 @@ const LoginComponent = (() => {
                                 >
                                     <span ref={iconContainerRef}> </span>
                                 </i>
-                                
                             </div>
                             <div class="d-flex justify-content-between">
                                 <Link to='/forgotpassword'>
