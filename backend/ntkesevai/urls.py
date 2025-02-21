@@ -19,21 +19,13 @@ from django.urls import include, path
 from django.shortcuts import redirect
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework import routers
-from tutorial.quickstart.views import views
-from .webapi.views import DistrictViewSet, ServiceRequestViewSet, HomePageViewSet, SocialMediaViewSet, ContactsViewSet, UserViewSet,GroupViewSet
-from .webapi.views import api_root, ServiceView,Service1View, ServiceDetailsView, RevenueVillageView
+#from tutorial.quickstart.views import views
+from ntkesevai.webapi.services.users import views as user_views
+from ntkesevai.webapi.services.home import views as home_views
+from ntkesevai.webapi.services.master import views as master_views
+from ntkesevai.webapi.services.servicerequest import views as servicerequest_views
+
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'groups', GroupViewSet)
-# router.register(r'services', ServiceView.as_view())
-# router.register(r'services', Service1View)
-# router.register(r'services', ServiceDetailsView)
-#router.register(r'services', RevenueVillageView, basename="\\")
-router.register(r'DistrictDetails', DistrictViewSet,basename="NTKESevai1")
-router.register('ServiceRequestDetails', ServiceRequestViewSet,basename="NTKESevai2")
-router.register('HomePageDetails', HomePageViewSet)
-router.register('SocialMediaDeails', SocialMediaViewSet)
-router.register('ContactDetails', ContactsViewSet)
 
 def redirect_root(request):
     return redirect('/api/services/')
@@ -42,12 +34,16 @@ def redirect_root(request):
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    #path('services', include(api_root)),
+    path('api/', include(user_views.urlpatterns)),
+    path('api/home/', include(home_views.urlPatterns)),
+    path('api/master/', include(master_views.urlPatterns)),
+    path('api/service/', include(servicerequest_views.urlPatterns)),
+    path('api/GetLogin/', user_views.CustomAuthToken.as_view(), name='GetLogin'),
     path('api-auth/login/', obtain_auth_token),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/services/', ServiceView.as_view(), name='service-list'),
-    path('api/services1/', Service1View.as_view(), name='service-list1'),
-    path('api/servicesdetails/', ServiceDetailsView.as_view(), name='service-list2'),
-    path('api/revenuevillagelist/', RevenueVillageView.as_view(), name='service-list2'),
+    path('api/services/', servicerequest_views.ServiceWithMappingView.as_view(), name='service-list'),
+    path('api/services1/', servicerequest_views.ServiceWithoutMappingView.as_view(), name='service-list1'),
+    path('api/servicesdetails/', servicerequest_views.ServiceDetailsView.as_view(), name='service-list2'),
+    path('api/master/revenuevillagelist/', master_views.RevenueVillageView.as_view(), name='service-list2'),
     path('admin/', admin.site.urls),
 ]

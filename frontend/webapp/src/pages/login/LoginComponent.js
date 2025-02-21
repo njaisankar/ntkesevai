@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import feather from 'feather-icons'
 import './LoginComponent.css';
+import {getUsers, getServiceRequest} from './../../services/servicelogic.js'
 
 const LoginComponent = (() => {
     const [userName, setUserName] = useState('');
@@ -34,13 +35,23 @@ const LoginComponent = (() => {
         setPasswordVisible(!passwordVisible);
     };
 
-    const openWhatsAppChat = () => {
-        window.open('https://wa.me/YourWhatsAppNumber', '_blank');
-    };
-
-    const handleSubmit = (event) =>{
+    //TODO
+    // const openWhatsAppChat = () => {
+    //     window.open('https://wa.me/YourWhatsAppNumber', '_blank');
+    // };
+  
+    const handleSubmit = async (event) =>{
         event.preventDefault(); 
-        if(userName === 'test' && password === 'test')
+        let userName = 'njais'
+        let password = 'ntkesevai!980'
+        const auth_data = { username: userName, password: password};
+            const data = await getUsers(auth_data);
+            console.log('users data ' + data.token)
+
+            const token = '4c10bf193c357066a8f9cbfd4b11607667bf6a74';
+            const serviceResult = await getServiceRequest(token);
+            console.log(serviceResult)
+        if(userName === userName && password === password)
         {
             navigate('/dashboard');
         }
@@ -55,18 +66,7 @@ const LoginComponent = (() => {
         }
     };
 
-    const userApiUrl ='http://127.0.0.1:8000/users/';
-    fetch(userApiUrl)
-    .then(response => { 
-      if(response.ok){
-        console.log('Succeess: '+ response.ok);
-        console.log(response.json());
-      }
-      else
-      {
-        console.log('Error: '+ response.error);
-      }
-    });
+
 
     return(
         <>
@@ -121,10 +121,8 @@ const LoginComponent = (() => {
                     </form>
                     <Link to="/register">
                         <p class="text-center mt-2"><span>எங்கள் தளத்திற்கு புதியவரா நீங்கள்?</span><span>&nbsp;கணக்கை உருவாக்க</span></p>
-                        
-
                     </Link>
-                    <button onClick={openWhatsAppChat}>Chat with us on WhatsApp</button>
+                    {/* <button onClick={openWhatsAppChat}>Chat with us on WhatsApp</button> */}
                 </div>
             </div>
         </div>

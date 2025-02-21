@@ -1,5 +1,10 @@
 backend/ntkesevai/__pycache__/
+backend/ntkesevai/webapi/__pycache__/
 backend/ntkesevai/webapi/migrations/__pycache__/
 backend/ntkesevai/webapi/models/__pycache__/
+backend/ntkesevai/webapi/services/home/__pycache__/
+backend/ntkesevai/webapi/services/users/__pycache__/
+backend/ntkesevai/webapi/services/master/__pycache__/
+backend/ntkesevai/webapi/services/servicerequest/__pycache__/
 frontend/webapp/node_modules/
 
