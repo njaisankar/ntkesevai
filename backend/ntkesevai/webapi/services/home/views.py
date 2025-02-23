@@ -18,7 +18,7 @@ class ContactsViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 router = routers.DefaultRouter()
-router.register(r'homedetails', HomePageViewSet, basename='home')
+router.register(r'appdetailslist', HomePageViewSet, basename='home')
 router.register(r'socialmedialist', SocialMediaViewSet)
 router.register(r'contactlist', ContactsViewSet)
 urlPatterns = router.urls

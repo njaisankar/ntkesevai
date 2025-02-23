@@ -27,8 +27,16 @@ export const getUsers = (auth_data) => fetchData('/users/GetLogin/', {
     body: "{\"username\":\"njais\",\"password\":\"ntkesevai!980\"}",
 });
 
+export const postUser = (data) => fetchData('/api/users/', {
+  method: 'POST',
+  headers: { 
+  'Content-Type': CONTENT_TYPE_JSON
+  },
+  body: JSON.stringify(data)
+});
 
-//Get users
+
+//Get service
 export const getServiceRequest = (token) => fetchData('api/servicesdetails/', {
   method: 'GET',
   headers: { 

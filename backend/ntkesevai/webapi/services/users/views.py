@@ -25,7 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = permissions.AllowAny  # Allow anyone to access
+    #permission_classes = permissions.AllowAny  # Allow anyone to access
 
     @action(detail=False, methods=['post'])
     def GetLogin(self, request):
@@ -46,9 +46,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class CustomAuthToken(ObtainAuthToken):
     serializer_class = UserSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+    #renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
-@permission_classes([permissions.IsAuthenticated, IsAdminOrReadOnly])
+#@permission_classes([permissions.IsAuthenticated, IsAdminOrReadOnly])
 class GroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.

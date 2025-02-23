@@ -64,7 +64,7 @@ const HomeComponent = (location) => {
   }
 
   useEffect(() => {
-    const apiUrl = 'http://127.0.0.1:8000/HomePageDetails/';
+    const apiUrl = 'http://127.0.0.1:8000/api/home/appdetailslist/';
     //Initialize wow.js
     new WOW({mobile: false}).init();
 

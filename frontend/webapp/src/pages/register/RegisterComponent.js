@@ -4,47 +4,123 @@ import { useNavigate } from 'react-router-dom';
 import feather from 'feather-icons'
 import Swal from 'sweetalert2';
 import { useState, useEffect, useRef } from 'react';
-
+import {postUser} from './../../services/servicelogic.js'
 const RegisterComponent = (() => {
     const navigate = useNavigate();
-    const [password, setPassword] = useState('');
-    
-        const [passwordVisible, setPasswordVisible] = useState(false);
-    
-        const iconContainerRef = useRef(null); // Ref for the icon container
-    
-        useEffect(() => {
-          // Render the icons whenever showPassword changes
-          renderIcons();
-        }, [passwordVisible]);
-      
-      
-        const renderIcons = () => {
-            if (iconContainerRef.current) {
-              iconContainerRef.current.innerHTML = ''; // Clear existing icon
-      
-              const iconName = passwordVisible ? 'eye' : 'eye-off';
-              const icon = feather.icons[iconName].toSvg(); // Get the SVG
-      
-              iconContainerRef.current.insertAdjacentHTML('beforeend', icon);
-            }
-        }
-      
-      const togglePasswordVisibility = () => {
-        setPasswordVisible(!passwordVisible);
-      };
-    
-    
+    const [formData, setFormData] = useState({username:'',first_name:'',last_name:'',email:'',password:'', mobile:''});
 
-    const handleSubmit = (event) =>{
-        event.preventDefault(); 
-            Swal.fire({
-                title: 'மின்னஞ்சல்',
-                text: "மின்னஞ்சல் தவறு. மீண்டும் முயற்சிக்கவும்.",
-                icon: 'error',  // or 'error', 'warning', 'info', 'question'
-                confirmButtonText: 'OK',
-            })
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const iconContainerRef = useRef(null); // Ref for the icon container
+
+    useEffect(() => {
+      // Render the icons whenever showPassword changes
+      renderIcons();
+    }, [passwordVisible]);
+       
+    const renderIcons = () => {
+        if (iconContainerRef.current) {
+          iconContainerRef.current.innerHTML = ''; // Clear existing icon
+  
+          const iconName = passwordVisible ? 'eye' : 'eye-off';
+          const icon = feather.icons[iconName].toSvg(); // Get the SVG
+  
+          iconContainerRef.current.insertAdjacentHTML('beforeend', icon);
         }
+    }
+      
+    const togglePasswordVisibility = () => {
+      setPasswordVisible(!passwordVisible);
+    };
+  
+    const handleChange = (event) => {
+      event.preventDefault(); 
+      const {name,value} = event.target;
+      setFormData((prevformData) => ({...prevformData, [name]:value}));
+   // setPassword(value);
+    }
+
+    const CheckPasswordStrength = (event) =>  {
+      const password = event.target.value;
+      var password_strength = document.getElementById("password_strength");
+      var eleman = document.getElementById("sub");
+
+      //TextBox left blank.
+      if (password.length == 0) {
+          password_strength.innerHTML = "";
+          return;
+      }
+
+      //Regular Expressions.
+      var regex = new Array();
+      regex.push("[A-Z]"); //Uppercase Alphabet.
+      regex.push("[a-z]"); //Lowercase Alphabet.
+      regex.push("[0-9]"); //Digit.
+      regex.push("[_$@!%*#?&]"); //Special Character.
+
+      var passed = 0;
+
+      //Validate for each Regular Expression.
+      for (var i = 0; i < regex.length; i++) {
+          if (new RegExp(regex[i]).test(password)) {
+              passed++;
+          }
+      }
+
+      //Validate for length of Password.
+      if (passed > 2 && password.length > 8) {
+          passed++;
+      }
+
+      //Display status.
+      var color = "";
+      var strength = "";
+      switch (passed) {
+          case 0:
+          case 1:
+              strength = "Weak";
+              color = "red";
+              break;
+          case 2:
+              strength = "Good";
+              color = "darkorange";
+              break;
+          case 3:
+          case 4:
+              strength = "Strong";
+              color = "green";
+              break;
+          case 5:
+              strength = "Very Strong";
+              color = "green";
+              eleman.removeAttribute("disabled");
+              break;
+      }
+      password_strength.innerHTML = strength;
+      password_strength.style.color = color;
+    }
+
+    const handleSubmit = async (event) =>{
+        event.preventDefault(); 
+        Swal.fire({
+            title: 'உங்கள் கணக்கு',
+            text: "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது.",
+            icon: 'error',  // or 'error', 'warning', 'info', 'question'
+            confirmButtonText: 'OK',
+        })
+    
+        const finalFormData = {
+          "username": formData.email,
+          "first_name": formData.first_name,
+          "last_name": formData.last_name,
+          "email": formData.email,
+          "password" : formData.password,
+          "user_details_data": {
+              "mobile": formData.mobile
+          }
+        }
+        //register user, call API
+        await postUser(finalFormData);
+    }
 
     return(
         <>
@@ -68,26 +144,25 @@ const RegisterComponent = (() => {
                       <form class="auth-register-form mt-2" onSubmit={handleSubmit}>
                           <div class="form-group">
                               <label class="form-label">முதல் பெயர்</label>
-                              <input class="form-control" type="text" name="firstname" required />
+                              <input class="form-control" type="text" name="first_name" value={formData.first_name} onChange={handleChange} required />
                           </div>
                           <div class="form-group">
                               <label class="form-label">கடைசி பெயர்</label>
-                              <input class="form-control" type="text" name="lastname" required />
+                              <input class="form-control" type="text" name="last_name" value={formData.last_name} onChange={handleChange} required />
                           </div>
                           <div class="form-group">
                               <label class="form-label">கைபேசி</label>
-                              <input class="form-control" type="text" maxlength="10" name="mobile" required />
+                              <input class="form-control" type="text" maxlength="10" name="mobile" value={formData.mobile} onChange={handleChange} required />
                           </div>
                           <div class="form-group">
                               <label class="form-label">மின்னஞ்சல்</label>
-                              <input class="form-control" type="email" name="email" required />
+                              <input class="form-control" type="email" name="email" value={formData.email} onChange={handleChange} required />
                           </div>
                           <div class="form-group">
                               <label class="form-label" for="register-password">கடவுச்சொல்</label>
-                              {/* onkeyup="CheckPasswordStrength(this.value)" todo */}
                               <div className="password-input" style={{display: 'flex', alignItems:'center'}}>
-                                <input className='form-control' type={passwordVisible ? 'text' : 'password'} required  id="register-password"  name="pwd" placeholder='கடவுச்சொல்' value={password}
-                                    onChange={(e) => setPassword(e.target.value)} />
+                                <input className='form-control' type={passwordVisible ? 'text' : 'password'} required  id="register-password"  name="password" value={formData.password} 
+                                 placeholder='கடவுச்சொல்' onChange={handleChange} onKeyUp={CheckPasswordStrength} />
                                 <i
                                     onClick={togglePasswordVisibility} 
                                     className='password-toggle-button'
@@ -102,7 +177,7 @@ const RegisterComponent = (() => {
                                 <p>2.குறைந்தபட்சம் ஒரு எழுத்து [a-z] க்கு இடையில் இருக்க வேண்டும்.</p>
                                 <p>3.குறைந்தபட்சம் ஒரு எழுத்து [A-Z] க்கு இடையில் இருக்க வேண்டும்.</p>
                                 <p>4.[0-9] க்கு இடையில் குறைந்தது ஒரு இலக்கம் இருக்க வேண்டும்.</p>
-                                <p>5.[_ @ # $ & *] இலிருந்து குறைந்தது 1 எழுத்து.</p>
+                                <p>5.[_ @ # $ & * ! % ? &] இலிருந்து குறைந்தது 1 எழுத்து.</p>
                               </span>
                           </div>
                           <button class="btn btn-primary btn-block" tabindex="5">கணக்கை தொடங்க</button>
