@@ -1,4 +1,3 @@
-from .service_models import Service, ServiceDetails
-from .master_models import RevenueVillageDetails, HomePageDetails, SocialMediaDetails, ContactDetails
-from .district_models import DistrictDetails
+from .service_models import Service, ServiceDetails, ServiceLinks
+from .master_models import DistrictDetails, BlockDetails, TownPanchayatDetails, PanchayatDetails, RevenueVillageDetails, VillageStreetDetails, HomePageDetails, SocialMediaDetails, ContactDetails
 from .service_request_models import ServiceRequestDetails

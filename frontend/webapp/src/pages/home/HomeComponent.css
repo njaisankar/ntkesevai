@@ -2,12 +2,6 @@ p h1 h2 h3 {
   font-family: 'Mukta Malar', sans-serif;
 }
 
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
 .grid-item {
   padding: 10px;
 }
@@ -119,6 +113,20 @@ font-size: small;
   gap: 10px;
 }
 
+/* Media Query for Mobile (screens up to 767px wide) */
+@media (max-width: 767px) {
+  .grid-container {
+    grid-template-columns: 1fr; /* Stack into a single column */
+  }
+}
+
+/* Optional: For tablets (screens between 768px and 991px), maybe 2 columns */
+@media (min-width: 768px) and (max-width: 991px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
+  }
+}
+
 .grid-item {
   padding: 10px;
 }
@@ -209,3 +217,21 @@ body {
   transform: rotate(-90deg);
 }  
 /*end of slide */
+
+
+/* Button */
+.btn-primary {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 24px;
+  padding: 0.6rem 1.6rem;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.08);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-primary:hover {
+  background: #e53935;
+  color: #fff;
+}

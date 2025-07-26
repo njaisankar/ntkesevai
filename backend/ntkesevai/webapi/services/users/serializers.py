@@ -45,8 +45,13 @@ class UserSerializer(serializers.ModelSerializer):
             UserDetails.objects.update_or_create(user=instance, defaults=user_details_data)
         return instance
 
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
-                  
+class ResetPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    password = serializers.CharField(max_length=20)
+    
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group

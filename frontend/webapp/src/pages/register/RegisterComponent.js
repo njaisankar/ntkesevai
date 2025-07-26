@@ -101,13 +101,7 @@ const RegisterComponent = (() => {
 
     const handleSubmit = async (event) =>{
         event.preventDefault(); 
-        Swal.fire({
-            title: 'உங்கள் கணக்கு',
-            text: "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது.",
-            icon: 'error',  // or 'error', 'warning', 'info', 'question'
-            confirmButtonText: 'OK',
-        })
-    
+      
         const finalFormData = {
           "username": formData.email,
           "first_name": formData.first_name,
@@ -120,6 +114,13 @@ const RegisterComponent = (() => {
         }
         //register user, call API
         await postUser(finalFormData);
+
+        Swal.fire({
+          title: 'உங்கள் கணக்கு',
+          text: "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது.",
+          icon: 'info',  // or 'error', 'warning', 'info', 'question'
+          confirmButtonText: 'OK',
+      })
     }
 
     return(

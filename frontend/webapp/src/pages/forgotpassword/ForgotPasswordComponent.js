@@ -3,24 +3,22 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import './ForgotPasswordComponent.css';
+import {getForgotPassword} from './../../services/servicelogic.js'
 const ForgotPasswordComponent = (() => {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
     const handleSubmit = (event) =>{
         event.preventDefault(); 
-        if(userName != 'njaisankar@gmail.com')
-        {
-            navigate('/dashboard');
-        }
-        else
-        {
-            Swal.fire({
-                title: 'மின்னஞ்சல்',
-                text: "மின்னஞ்சல் தவறு. மீண்டும் முயற்சிக்கவும்.",
-                icon: 'error',  // or 'error', 'warning', 'info', 'question'
-                confirmButtonText: 'OK',
-            })
-        }
+        console.log('input',userName)
+        const bodyData = { email: userName };
+        var returnResult = getForgotPassword(bodyData);
+        console.log("Result" + returnResult);
+        Swal.fire({
+            title: 'ஒரு முறை கடவுச்சொல்',
+            text: "ஒரு முறை கடவுச்சொல் வெற்றிகரமாக உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்டது.",
+            icon: 'error',  // or 'error', 'warning', 'info', 'question'
+            confirmButtonText: 'OK',
+        })
     };
 
     return(

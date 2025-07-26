@@ -6,5 +6,6 @@ backend/ntkesevai/webapi/services/home/__pycache__/
 backend/ntkesevai/webapi/services/users/__pycache__/
 backend/ntkesevai/webapi/services/master/__pycache__/
 backend/ntkesevai/webapi/services/servicerequest/__pycache__/
+backend/venv/
 frontend/webapp/node_modules/
 

@@ -1,48 +1,33 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import HeaderComponent from '../shared/HeaderComponent';
+import MenuComponent from '../shared/MenuComponent';
+import BeneficiaryLinksBar from '../shared/BeneficiaryLinksBar';
+import FooterComponent from '../shared/FooterComponent';
+import ServiceRequestListComponent from '../services/ServiceRequestListComponent';
+import HomeComponent from '../services/HomeComponent';
 import './DashboardComponent.css';
-const DashboardComponent = (() => {
-    
-    return(
-        <>
-        {
-            <section id="statistics-card">
-                <div class="row">
-                    <div class="col-xl-3 col-md-4 col-sm-6">
-                        <a href="pairchikoodam.com">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h4 class="font-weight-bolder">குடும்ப அட்டை</h4>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
 
-                    <div class="col-xl-3 col-md-4 col-sm-6">
-                        <a href="https://yahoo.com">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h4 class="font-weight-bolder">ஆதார்</h4>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+const DashboardComponent = () => {
+  const [selectedServiceId, setSelectedServiceId] = useState("0: முகப்பு"); // Default to Home
+  const location = useLocation();
+  const userData = location.state?.userData;
+  return (
+    <div className="fdashboard-container">
+      <HeaderComponent userData={userData} />
+      <MenuComponent serviceId={selectedServiceId} onSelect={setSelectedServiceId} userData={userData} />
+      <BeneficiaryLinksBar serviceId={selectedServiceId} />
+      <main className="main-content">
+        {/* Conditional Rendering Logic */}
+        {selectedServiceId == "0: முகப்பு"? (
+          <HomeComponent />
+        ) : (
+          <ServiceRequestListComponent serviceId={selectedServiceId} userData={userData} />
+        )}
+      </main>
+      <FooterComponent />
+    </div>
+  );
+};
 
-                    <div class="col-xl-3 col-md-4 col-sm-6">
-                        <a href="https://google.com">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h4 class="font-weight-bolder">பான்</h4>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                </div>
-            </section>
-        }
-        </>
-    );    
-});
-
-export default DashboardComponent
+export default DashboardComponent;

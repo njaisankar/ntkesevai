@@ -1,0 +1,66 @@
+/* Styles for the overall beneficiary links bar (no change from last version) */
+.beneficiary-links-bar {
+    background-color: #fcfcfc;
+    margin-top: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+/* Container for overall bar padding and content alignment (no change) */
+.beneficiary-links-bar .container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* Styling for the "Quick Links:" title (no change) */
+.beneficiary-links-bar-title {
+    display: block;
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: #777;
+    font-weight: 500;
+}
+
+/* Container for the actual links (Flexbox for arrangement) (no change) */
+.beneficiary-links-bar .links-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Space between individual links */
+}
+
+/* --- UPDATED Styling for individual beneficiary links --- */
+.beneficiary-links-bar a {
+    color: #444; /* Default dark grey for text */
+    text-decoration: none; /* No underline by default */
+    font-size: 0.9rem; /* Smaller font size for conciseness */
+    font-weight: 500; /* Normal weight for textual links */
+
+    /* The "elegant rounded box" properties */
+    background-color: #fefefe; /* Very light, almost white background for the box */
+    border: 1px solid rgba(0, 0, 0, 0.1); /* A thin, subtle border for definition */
+    border-radius: 4px; /* Gentle rounding for the corners */
+    padding: 4px 10px; /* Minimal padding to create the "tiny" box around the text */
+
+    box-shadow: none; /* No shadow by default to keep it lightweight */
+    
+    /* Smooth transitions for all properties */
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, text-decoration 0.2s ease;
+    white-space: nowrap; /* Prevent text from wrapping within the link button */
+}
+
+/* --- UPDATED Hover effects for individual links --- */
+.beneficiary-links-bar a:hover {
+    color: #e53935; /* Changes to your header's red on hover */
+    text-decoration: underline; /* Simple underline on hover */
+    
+    /* Subtle background and border change on hover */
+    background-color: rgba(229, 57, 53, 0.08); /* A very light red tint on hover */
+    border-color: rgba(229, 57, 53, 0.4); /* Slightly more defined red border on hover */
+
+    /* Ensure no unwanted effects from previous iterations */
+    transform: none;
+    box-shadow: none;
+}
