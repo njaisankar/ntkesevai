@@ -76,7 +76,7 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(service_id = self.request.query_params.get('serviceid'));
+        #queryset = queryset.filter(id = self.request.query_params.get('id'));
         return queryset
     
     def list(self, request, *args, **kwargs):

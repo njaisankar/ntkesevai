@@ -26,6 +26,15 @@ const DashboardComponent = () => {
         )}
       </main>
       <FooterComponent />
+
+      <>
+       <CommonMessagePopup
+        isVisible={popupVisible}
+        message={popupMessage}
+        type={popupType}
+        onClose={hidePopup}
+      />
+      </>
     </div>
   );
 };

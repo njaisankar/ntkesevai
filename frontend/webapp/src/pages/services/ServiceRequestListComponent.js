@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactPaginate from 'react-paginate'; // Although not directly used with TanStack Table's built-in pagination, keep if you plan external pagination UI.
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -14,6 +14,8 @@ import {
 } from "@tanstack/react-table";
 import { DeleteServiceRequestDetails, getMasterService, getServiceDetails, getServiceRequestDetails } from '../../services/servicelogic.js';
 import ModelComponent from '../shared/ModelComponent.js'; // Correct path to your ModelComponent
+
+import { MessagePopupContext } from '../../contexts/MessagePopupContext.js'; // Import the custom hook
 
 // Helper function to parse the serviceId string (e.g., "1:Ration")
 // This function needs to be resilient to non-string inputs from the start.
@@ -59,6 +61,7 @@ const ServiceRequestList = ({ serviceId, userData }) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editRecordId, setEditRecordId] = useState(null);
 
+    const { showMessage, showConfirm } = useContext(MessagePopupContext);
     // --- Data Fetching Logic ---
     const fetchData = async () => {
         setLoading(true);
@@ -104,7 +107,6 @@ const ServiceRequestList = ({ serviceId, userData }) => {
 
     // This function is passed down as `onSaved`
     const handleFormSaved = () => {
-        console.log("Form saved successfully in ServiceRequestList!");
         setShowModal(false); // Close the modal
         setEditRecordId(null); // Clear edit state
         setRefreshTrigger(prev => prev + 1); // Increment to trigger re-fetch of the list
@@ -209,38 +211,40 @@ const ServiceRequestList = ({ serviceId, userData }) => {
     });
 
     // --- Handlers for Actions ---
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this record?")) {
-            return;
-        }
-        try {
-            const token = userData?.token;
-            if (!token) {
-                alert("Authentication token is missing. Cannot delete record.");
-                return;
-            }
+    const handleDelete = async (id) => { console.log('handleDelete called with id:', id);
+      showConfirm(
+      'Confirm Deletion', // Modal Title
+      'Are you absolutely sure you want to delete this item? This action cannot be undone.', // Modal Message
+      async () => {
+            try 
+            {
+                const token = userData?.token;
+                if (!token) {
+                    showMessage(`Authentication token is missing. Cannot delete record.`, 'error');
+                    return;
+                }
 
-            var response = await DeleteServiceRequestDetails(id, token);
-            // const response = await fetch(`/api/service/servicerequestdetails/${id}/`, {
-            //     method: 'DELETE',
-            //     headers: {
-            //         'Authorization': `Token ${token}`,
-            //         // 'Content-Type': 'application/json', // Not strictly needed for DELETE without body
-            //     },
-            // });
-            if (!response.ok) {
-                // Try to read error message from response body
-                const errorData = await response.json().catch(() => ({ detail: response.statusText }));
-                console.log('error ', errorData)
-                return;
-              //  throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorData.detail || JSON.stringify(errorData)}`);
-            }
-            alert("Record deleted successfully!");
-            fetchData(); // Re-fetch data to update the list after deletion
-        } catch (error) {
-            console.error('Error deleting request:', error);
-            alert(`Failed to delete record: ${error.message}`);
-        }
+                var response = await DeleteServiceRequestDetails(id, token);
+                console.log('response 1', response.status)
+
+                if(response && response.success && response.status === 204) {
+                    showMessage(`Record ${id} deleted successfully!`, 'success');
+                    setRefreshTrigger(prev => prev + 1); // Increment to trigger re-fetch of the list
+                    fetchData(); // Re-fetch data to update the list after deletion
+                }
+            } 
+            catch (error) 
+            {
+                console.error('Error deleting request:', error);
+                showMessage(`Error deleting record ${id}: ${error.message}`, 'error');
+            }        
+      },
+      () => {
+        // --- User clicked 'Cancel' ---
+        console.log('User cancelled deletion.');
+        showMessage(`Deletion of record ${id} cancelled.`, 'info');
+      }
+    );
     };
 
     const handleAddNewRequest = () => {

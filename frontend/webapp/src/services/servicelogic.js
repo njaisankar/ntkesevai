@@ -11,10 +11,22 @@ const fetchData = async (endpoint, options = {}) => {
     console.log(`${ENDPOINT_BASE_URL}/${endpoint}`)
     const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, options);
     console.log('response ', response)
+    console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
     if (!response.ok) {
       //throw new Error(`Error: ${response.statusText}`);
       console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
     }
+
+    if (response.status === 201) {
+      console.log(`Service Request with ID ${endpoint} created successfully (201 Created).`);
+      return { success: true, status: 201, message: 'Record created successfully.' };
+    }
+
+    if (response.status === 204) {
+      console.log(`Service Request with ID ${endpoint} deleted successfully (204 No Content).`);
+      return { success: true, status: 204, message: 'Record deleted successfully.' };
+    }
+      // No content, return an empty object or null
     return await response.json();
   } catch (error) {
     console.error('Fetch error:', error);
@@ -101,7 +113,7 @@ export const CreateServiceRequestDetails = (formData, token) => fetchData('api/s
   //JSON.stringify(jsonData)  
 });
 
-export const getServiceRequestDetailsById = (id, token) => fetchData(`api/service/serviceseditrequest/?id=${id}`, {
+export const getServiceRequestDetailsById = (id, token) => fetchData(`api/service/servicerequestdetails/${id}/`, {
   method: 'GET',
   headers: { 
     'authorization' :  `Token ${token}`,
@@ -110,7 +122,7 @@ export const getServiceRequestDetailsById = (id, token) => fetchData(`api/servic
 });
 
 // This is the function you need for updating
-export const UpdateServiceRequestDetails = (recordId, formData, token) => fetchData(`api/service/servicerequestdetails/?id=${recordId}`, {
+export const UpdateServiceRequestDetails = (recordId, formData, token) => fetchData(`api/service/servicerequestdetails/${recordId}/`, {
     method: 'PUT', // Changed method from POST to PUT
     headers: {
         'authorization': `Token ${token}`//,
@@ -121,7 +133,7 @@ export const UpdateServiceRequestDetails = (recordId, formData, token) => fetchD
 });
 
 
-export const DeleteServiceRequestDetails = (recordId, token) => fetchData(`api/service/servicerequestdetails/?id=${recordId}`, {
+export const DeleteServiceRequestDetails = (recordId, token) => fetchData(`api/service/servicerequestdetails/${recordId}/`, {
     method: 'DELETE', 
     headers: {
         'authorization': `Token ${token}`//,

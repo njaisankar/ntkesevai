@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext} from 'react';
 import { getMasterService, getBlockDetails, getTownPanchayatDetails, getRevenueVillages, getTownPanchayatVillageStreetDetails, getServiceDetails, getPanchayatDetails } from '../../services/servicelogic';
 import { CreateServiceRequestDetails, getServiceRequestDetailsById, UpdateServiceRequestDetails } from '../../services/servicelogic'; 
-
+import {  MessagePopupContext } from '../../contexts/MessagePopupContext'; 
 // Make sure parseServiceIdString is defined or imported if needed here, 
 // but it's more likely used in ServiceRequestList.
 // If your serviceId prop is already just the ID, no parsing needed here.
@@ -15,9 +15,9 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         town_panchayat_id: '1',
         panchayat_id: '',
         ward_number: '1',
-        village_name: 'vnamedetails', // Default village name
+        village_name: '', // Default village name
         address_line1: '',
-        street_name: 'stttreet', // Default street name
+        street_name: '', // Default street name
         job_num: '',
         shop_num: '',
         ref_number: '',
@@ -56,7 +56,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
     const [filePreview, setFilePreview] = useState(null); // To display current document attachment URL
 
     const token = userData?.token; // Get token from props or context
-
+    const { showMessage } = useContext(MessagePopupContext);
     // --- Effects for fetching dropdown data ---
     // Fetch Master Services (used for service details)
     useEffect(() => {
@@ -348,14 +348,6 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 }
                 // Reset dependent dropdowns
                 setFilteredTownPanchayatVillages([]);  
-
-                // setFormData(prev => ({
-                //     ...prev,
-                //     panchayat_id: '',
-                //     revenue_village_id: '',
-                //     street_name: '',
-                //     village_name: ''
-                // }));
             }  
             else if (name === 'town_panchayat_id') 
             {
@@ -379,11 +371,10 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             }
             else if (name === 'village_street_id') 
             {
-              
               setSelectedTownPanchayatVillageId(value); // Assuming this is also a form field
             }
             
-              setFormData(prev => ({ ...prev, [name]: value }));
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
@@ -402,8 +393,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             town_panchayat_id: '1',
             panchayat_id: '',
             revenue_village_id: '1',
-            village_name: 'vname', // Reset village_name as it might depend on these
-            street_name: 'ssstr', // Reset street_name
+            village_name: '', // Reset village_name as it might depend on these
+            street_name: '', // Reset street_name
         }));
     };
 
@@ -425,7 +416,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 submitData.append(key, formData[key]);
             }
         }
-        submitData.append('street_name', 'Hardcoded Street Name');
+
+        submitData.append('street_name', 'null1');
         // Handle the file attachment specifically
         if (formData.document_attachment instanceof File) {
             submitData.append('document_attachment', formData.document_attachment, formData.document_attachment.name);
@@ -433,46 +425,43 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             // Optional: Logic to tell backend to clear an existing file if it was removed
             // This depends on your backend's API design (e.g., submitData.append('document_attachment', ''))
         }
-
-        // For new records, ensure service_id is explicitly set if needed by API
-        // if (!isEditMode && serviceId) {
-        //     submitData.append('service_id', serviceId);
-        // }
-        // If service_detail_id is already in formData and being appended above, this might not be necessary.
-        // Check your API's requirement for 'service_id' vs 'service_detail_id'
-
-
-        // --- NOW, ADD THE DEBUGGING LOG AFTER POPULATING FormData ---
-        console.log("FormData contents before sending:");
-        for (const pair of submitData.entries()) {
-          console.log('test data pair ', pair);
-            console.log('test data ', pair[0]+ ': ' + pair[1]);
-        }
-        /// --- END DEBUGGING LOG ---
-
             // For new records, ensure service_id is explicitly set
             if (!isEditMode && serviceId) {
                 submitData.append('service_id', serviceId);
             }
 
             if (isEditMode && recordId) {
-              console.log('token ', token)
-                await UpdateServiceRequestDetails(recordId, submitData, token);
-                alert("Record updated successfully!");
+                console.log('token ', token)
+                var response =await UpdateServiceRequestDetails(recordId, submitData, token);
+                if(response && response.success && response.status === 201) {
+                    console.log('response ', response)
+                    showMessage("Record updated successfully!", "success");
+                }
+                else {
+                    showMessage(`Failed to save record: 'Unknown error'`, "error");
+                }
             } else {
-                await CreateServiceRequestDetails(submitData, token);
-                alert("Record created successfully!");
+                var response = await CreateServiceRequestDetails(submitData, token);
+                console.log('response && response.status');
+                console.log(response  ,' === ', response.status);
+                if(response && response.success && response.status === 201) {
+                    console.log('response ', response)
+                    showMessage("Record created successfully!", "success");
+                }
+                else {
+                    showMessage(`Failed to save record: 'Unknown error'`, "error");
+                }
             }
             onSaved(); // Notify parent to close modal and refresh list
         } catch (error) {
             console.error('Error saving request:', error);
             const errorMessage = error.message || 'Unknown error occurred. Please check console for details.';
             setFormError(`Failed to save record: ${errorMessage}`);
+            showMessage(`Failed to save record: ${errorMessage}`, "error");
         } finally {
             setLoading(false);
         }
     };
-
 
     return (
         <form onSubmit={handleSubmit}>
@@ -542,10 +531,12 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         className="form-control"
                         value={formData.amount} // HIGHLIGHT: Bind value (it's already a string from setFormData)
                         onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        step="0.01" // Allow decimal values
+                        required
                     />
                 </div>
                 <div className="col-12 col-md-4">
-                    <label htmlFor="first_name" className="form-label">பயனாளி பெயர்</label>
+                    <label htmlFor="first_name" className="form-label">பயனாளி முதல் பெயர்</label>
                     <input
                         type="text"
                         id="first_name"
@@ -557,7 +548,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                     />
                 </div>
                 <div className="col-12 col-md-4">
-                    <label htmlFor="last_name" className="form-label">கடைசிப் பெயர்</label>
+                    <label htmlFor="last_name" className="form-label">பயனாளி கடைசிப் பெயர்</label>
                     <input
                         type="text"
                         id="last_name"
@@ -565,6 +556,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         className="form-control"
                         value={formData.last_name} // HIGHLIGHT: Bind value
                         onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        required
                     />
                 </div>
 
@@ -577,8 +569,9 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         className="form-select"
                         value={selectedBlockTownId} // HIGHLIGHT: Bind value
                         onChange={handleBlockTownChange} // HIGHLIGHT: Use specific handler
+                        required
                     >
-                        <option value="none">பிரிவைத் தேர்ந்தெடுக்கவும்</option>
+                        <option selected value="">பிரிவைத் தேர்ந்தெடுக்கவும்</option>
                         <option value="1">ஒன்றியம்</option> {/* Town Panchayat */}
                         <option value="2">பேரூராட்சி</option>    {/* Panchayat */}
                         <option value="3">இதர</option>      {/* Other (Direct Street Name) */}
@@ -652,6 +645,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                             className="form-select"
                             value={selectedTownPanchayatVillageId} // HIGHLIGHT: Bind value
                             onChange={handleChange} // HIGHLIGHT: Bind onChange
+                            required
                         >
                             <option value="">தெரு/கிராமத்தைத் தேர்ந்தெடுக்கவும்</option>
                             {filteredTownPanchayatVillages.map(tpv => (
@@ -670,6 +664,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         className="form-control"
                         value={formData.ward_number} // HIGHLIGHT: Bind value
                         onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        required
                     />
                 </div>
                 <div className="col-12 col-md-4">
@@ -721,6 +716,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         className="form-control"
                         value={formData.contact_mobile} // HIGHLIGHT: Bind value
                         onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        required
                     />
                 </div>
                 <div className="col-12 col-md-4">
@@ -732,6 +728,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         className="form-control"
                         value={formData.email_id} // HIGHLIGHT: Bind value
                         onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        required
                     />
                 </div>
                 <div className="col-12 col-md-4">
