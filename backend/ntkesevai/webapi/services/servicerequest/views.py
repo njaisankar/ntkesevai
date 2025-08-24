@@ -6,7 +6,12 @@ from rest_framework import viewsets, routers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from rest_framework.decorators import action
+from django.http import FileResponse
+
 from rest_framework.pagination import PageNumberPagination
+
+from ntkesevai.webapi.services.utils.receipt_certificate import generate_certificate
 
 from ntkesevai.webapi.models import Service, ServiceDetails, ServiceLinks, ServiceRequestDetails
 from ntkesevai.webapi.services.servicerequest.serializers import ServiceSerializer, ServiceDetailsSerializer, ServiceRequestSerializer
@@ -41,8 +46,8 @@ class ServiceWithMappingView(APIView):
         # services = [
         #     [dict(zip(columns, row)) for row in rows]
         # ]
-        serrilizer = ServiceSerializer(services,many=True)
-        return Response(serrilizer.data)
+        serializer = ServiceSerializer(services,many=True)
+        return Response(serializer.data)
 
 class ServiceWithoutMappingView(APIView):
     def get(self, request):
@@ -90,6 +95,11 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         ServiceRequestSerializer = self.get_serializer(queryset, many = True)
         return Response(ServiceRequestSerializer.data)
 
+    @action(detail=True, methods=['get'])
+    def generate_certificate(self, request, pk=None):
+        service_request = self.get_object()
+        file_path = generate_certificate(service_request)
+        return FileResponse(open(file_path, 'rb'), content_type='image/jpeg')
 
 router = routers.DefaultRouter()
 router.register(r'servicerequestdetails', ServiceRequestViewSet, basename='servicerequest')
