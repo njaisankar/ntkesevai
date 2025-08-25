@@ -91,29 +91,29 @@
     <div >
         <div class="imgCrt" >
             <span>
-                <p class="name">{{first_name}}</p>
+                <p class="name">{{service_request.first_name}}, {{service_request.last_name}}</p>
             </span>
 
             <span >
-                <p class="noteNum">{{ref_number}}</p>
+                <p class="noteNum">{{service_request.ref_number}}</p>
             </span>
 
             <span>
-                <p class="work">{{jobtit}}</p>
+                <p class="work">{{service_request.job}}</p>
             </span>
 
             <span>
-                <p class="rupee">{{amount}}</p>
+                <p class="rupee">{{service_request.amount}}</p>
             </span>
 
             <span>
-                <p class="dated">{{date | date:"d/m/Y h:s:i A" }}</p>
+                <p class="dated">{{date}}</p>
             </span>
             <span>
-                <p class="register">{{created_by}}</p>
+                <p class="register">{{service_request.created_by}}</p>
             </span>
             <span>
-                <p class="resiver">{{created_by}}</p>
+                <p class="resiver">{{service_request.created_by}}</p>
             </span>
         </div>
     </div>
