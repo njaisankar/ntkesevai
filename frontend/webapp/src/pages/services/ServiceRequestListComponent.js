@@ -4,6 +4,8 @@ import ReactPaginate from 'react-paginate'; // Although not directly used with T
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
 import './ServiceRequestListComponent.css';
+import './GenerateCertificateButton.js';
+
 import ServiceRequestForm from './ServiceRequestFormComponent.js'; // Adjust path if needed
 import {
     useReactTable,
@@ -12,10 +14,16 @@ import {
     getPaginationRowModel,
     flexRender,
 } from "@tanstack/react-table";
-import { DeleteServiceRequestDetails, getMasterService, getServiceDetails, getServiceRequestDetails } from '../../services/servicelogic.js';
+import {
+    DeleteServiceRequestDetails,
+    getMasterService,
+    getServiceDetails,
+    getServiceRequestDetails
+} from '../../services/servicelogic.js';
 import ModelComponent from '../shared/ModelComponent.js'; // Correct path to your ModelComponent
 
-import { MessagePopupContext } from '../../contexts/MessagePopupContext.js'; // Import the custom hook
+import { MessagePopupContext } from '../../contexts/MessagePopupContext.js';
+import GenerateCertificateButton from "./GenerateCertificateButton"; // Import the custom hook
 
 // Helper function to parse the serviceId string (e.g., "1:Ration")
 // This function needs to be resilient to non-string inputs from the start.
@@ -142,20 +150,20 @@ const ServiceRequestList = ({ serviceId, userData }) => {
             {
                 header: "சான்றிதழை பதிவிறக்கு",
                 accessorKey: "document_attachment",
-                cell: ({ row }) => (row.original.document_attachment ? (
-                    <a
-                        href={row.original.document_attachment}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-success"
-                    >
-                        பதிவிறக்கு
-                    </a>
-                ) : (
-                    <span className="text-muted">கோப்பு இல்லை</span>
-                )
-                ),
+                cell: ({ row }) => {
+                    const recordId = row.original.id; // Pass down the props needed by the component
+                    const documentAttachment = row.original.document_attachment;
+                    const recordStatus = row.original.status;
+
+                    // Render the new component and pass the required props
+                    return (
+                        <GenerateCertificateButton
+                            recordId={recordId}
+                            recordStatus={recordStatus}
+                            token={userData?.token}
+                        />
+                    );
+                }
             },
             {
                 header: "செயல்கள்",

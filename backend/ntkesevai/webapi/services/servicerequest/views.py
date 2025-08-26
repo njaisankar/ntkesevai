@@ -5,7 +5,7 @@ from django.db import connection
 from rest_framework import viewsets, routers
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from django.http import HttpResponse
 from rest_framework.decorators import action
 from django.http import FileResponse
 
@@ -99,7 +99,18 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
     def generate_certificate(self, request, pk=None):
         service_request = self.get_object()
         file_path = generate_certificate(service_request)
-        return FileResponse(open(file_path, 'rb'), content_type='image/jpeg')
+        if not file_path:
+            return HttpResponse("Certificate generation failed.", status=500)
+
+        with open(file_path, 'rb') as f:
+            image_data = f.read()
+
+            # Return the HttpResponse with the correct content type
+        response = HttpResponse(image_data, content_type="image/jpeg")
+        # Optional: Force a download with a filename
+        # response['Content-Disposition'] = 'attachment; filename="certificate.jpg"'
+        return response
+        #return FileResponse(open(file_path, 'rb'), content_type='image/jpeg')
 
 router = routers.DefaultRouter()
 router.register(r'servicerequestdetails', ServiceRequestViewSet, basename='servicerequest')

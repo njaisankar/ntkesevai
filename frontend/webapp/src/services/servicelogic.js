@@ -34,6 +34,21 @@ const fetchData = async (endpoint, options = {}) => {
   }
 };
 
+const fetchBlobData = async (endpoint, options = {}) => {
+  try {
+    const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, options);
+    if (!response.ok) {
+      //throw new Error(`Error: ${response.statusText}`);
+      console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
+    }
+      // No content, return an empty object or null
+    return await response;
+  } catch (error) {
+    console.error('Fetch blob error:', error);
+    throw error;
+  }
+};
+
 //Get users
 export const getUsers = (auth_data) => fetchData('api/users/GetLogin/', {
     method: 'POST',
@@ -138,6 +153,13 @@ export const DeleteServiceRequestDetails = (recordId, token) => fetchData(`api/s
     headers: {
         'authorization': `Token ${token}`//,
         //'Content-Type': CONTENT_TYPE_JSON
+    }
+});
+
+export const GenerateCertificate = (recordId, token) => fetchBlobData(`api/service/servicerequestdetails/${recordId}/generate_certificate`, {
+    method: 'GET',
+    headers: {
+        'authorization': `Token ${token}`//,
     }
 });
 
