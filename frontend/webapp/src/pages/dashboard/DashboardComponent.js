@@ -16,14 +16,21 @@ const DashboardComponent = () => {
     <div className="fdashboard-container">
       <HeaderComponent userData={userData} />
       <MenuComponent serviceId={selectedServiceId} onSelect={setSelectedServiceId} userData={userData} />
-      <BeneficiaryLinksBar serviceId={selectedServiceId} />
       <main className="main-content">
-        {/* Conditional Rendering Logic */}
-        {selectedServiceId == "0: முகப்பு"? (
-          <HomeComponent />
-        ) : (
+          <div className="beneficiary-links-wrapper">
+            <BeneficiaryLinksBar serviceId={selectedServiceId} />
+          </div>
+
+           <div className="scrollable-grid-wrapper">
+            {/* Conditional Rendering Logic */}
+            {selectedServiceId == "0: முகப்பு"? (
+              <HomeComponent />
+            ) : (
+
           <ServiceRequestListComponent serviceId={selectedServiceId} userData={userData} />
-        )}
+
+            )}
+           </div>
       </main>
       <FooterComponent />
     </div>

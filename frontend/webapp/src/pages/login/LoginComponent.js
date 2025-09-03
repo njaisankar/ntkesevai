@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import feather from 'feather-icons'
 import './LoginComponent.css';
-
+import ErrorBoundary from './../../ErrorBoundary';
 import {getUsers, getServiceRequest} from './../../services/servicelogic.js'
 
 const LoginComponent = (() => {
@@ -40,7 +40,7 @@ const LoginComponent = (() => {
     // const openWhatsAppChat = () => {
     //     window.open('https://wa.me/YourWhatsAppNumber', '_blank');
     // };
-  
+
     const handleSubmit = async (event) =>{
         event.preventDefault(); 
         //let userName = 'daya@gmail.com'
@@ -48,22 +48,25 @@ const LoginComponent = (() => {
         console.log('users entered username ' + userName);
         console.log('users entered password ' + password);
         const auth_data = { username: userName, password: password};
-            const userData = await getUsers(auth_data);
-            console.log('users  token ' + userData.token);
-            console.log('users user id ' + userData.user_id);
-            console.log('users  username ' + userData.username);
-            console.log('users  password ' + userData.password);
-            console.log('users fn ' + userData.first_name);
-            console.log('users ln ' + userData.last_name);
-            console.log('users permissions ' + userData.permissions);
-            console.log('users isCreator ' + userData.isCreator);
-            console.log('users isApprover ' + userData.isApprover);
-        if(userData && userData.token)
-        {
-             navigate('/dashboard', { state: { userData } });
-        }
-        else
-        {
+        let userData = (await getUsers(auth_data));
+        console.log('users  data ' + userData.success);
+        console.log('users  data ' + userData.status);
+        console.log('users  data ' + userData.data);
+        console.log('users  data ' + userData.error);
+        userData = userData.data;
+        console.log('users  token ' + userData.token);
+        console.log('users user id ' + userData.user_id);
+        console.log('users  username ' + userData.username);
+        console.log('users  password ' + userData.password);
+        console.log('users fn ' + userData.first_name);
+        console.log('users ln ' + userData.last_name);
+        console.log('users permissions ' + userData.permissions);
+        console.log('users isCreator ' + userData.isCreator);
+        console.log('users isApprover ' + userData.isApprover);
+
+        if (userData && userData.token) {
+            navigate('/dashboard', {state: {userData}});
+        } else {
             Swal.fire({
                 title: 'கடவுச்சொல்',
                 text: "கணக்கை/கடவுச்சொல்லை மறந்துவிட்டீர்களா?",

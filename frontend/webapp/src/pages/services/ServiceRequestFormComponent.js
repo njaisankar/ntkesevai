@@ -9,16 +9,16 @@ import {  MessagePopupContext } from '../../contexts/MessagePopupContext';
 const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId, userData }) => {
     // Initial state for form data
     const [formData, setFormData] = useState({
-        service_detail_id: serviceId || '', // Use prop serviceId for new records
+        service_id: serviceId || '', // Use prop serviceId for new records
+        service_details_id: '',
         district_id: '1', // Default as '1'
         block_id: '',
-        town_panchayat_id: '1',
+        town_panchayat_id: '',
         panchayat_id: '',
-        ward_number: '1',
-        village_name: '', // Default village name
+        ward_number: '',
+        //village_name: '', // Default village name
         address_line1: '',
-        street_name: '', // Default street name
-        job_num: '',
+        street_name: 'இதர', // Default street name
         shop_num: '',
         ref_number: '',
         document_attachment: null, // File inputs are special
@@ -38,6 +38,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
     const [townPanchayatVillages, setTownPanchayatVillages] = useState([]); // Assuming this holds street names or similar
 
     const [selectedServiceId, setSelectedServiceId] = useState('');
+    const [selectedServiceDetailsId, setSelectedServiceDetailsId] = useState('');
     const [selectedBlockTownId, setSelectedBlockTownId] = useState('none'); // '1' for Town, '2' for Panchayat, '3' for Other
     const [selectedDistrictId, setSelectedDistrictId] = useState('1'); // Matches formData.district_id
     const [selectedBlockId, setSelectedBlockId] = useState('');
@@ -63,8 +64,10 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         const fetchServiceDetailsData = async () => {
             if (!token) return;
             try {
-                const selectedServiceDetails = await getServiceDetails(token, serviceId);
-                setServiceDetails(selectedServiceDetails)
+                const response = await getServiceDetails(token, serviceId);
+                console.log('Service Id ',serviceId)
+                console.log('Service details for {serviceId} ', response)
+                setServiceDetails(response.data)
                 // If in edit mode, and serviceId is pre-set, you might need to find the correct master service.
             } catch (error) {
                 console.error('Error fetching master services:', error);
@@ -79,8 +82,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
     //         if (!token) return;
     //         try {
     //             // Assuming getServiceDetails fetches all details for dropdown, not by ID
-    //             const data = await getServiceDetails(token, serviceId);
-    //             setServiceDetails(data);
+    //             const response = await getServiceDetails(token, serviceId);
+    //             setServiceDetails(response.data);
     //         } catch (error) {
     //             console.error('Error fetching service details:', error);
     //         }
@@ -96,8 +99,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 return;
             }
             try {
-                const data = await getBlockDetails(token, selectedDistrictId);
-                setBlocks(data);
+                const response = await getBlockDetails(token, selectedDistrictId);
+                setBlocks(response.data);
             } catch (error) {
                 console.error('Error fetching blocks:', error);
                 setBlocks([]);
@@ -116,8 +119,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             try {
                 // Assuming getMasterService also has town panchayats, or a dedicated API call
                 // For example: await getTownPanchayats(token, selectedDistrictId);
-                const data = await getTownPanchayatDetails(token); // Placeholder, adjust as per your actual API
-                setTownPanchayats(data.filter(item => item.category === 'town_panchayat_type')); // Filter if getMasterService returns mixed data
+                const response = await getTownPanchayatDetails(token); // Placeholder, adjust as per your actual API
+                setTownPanchayats(response.data.filter(item => item.category === 'town_panchayat_type')); // Filter if getMasterService returns mixed data
             } catch (error) {
                 console.error('Error fetching town panchayats:', error);
                 setTownPanchayats([]);
@@ -135,9 +138,9 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             }
             try {
                 // Assuming getMasterService also has panchayats, or a dedicated API call
-                const data = await getPanchayatDetails(token); // Placeholder
+                const response = await getPanchayatDetails(token); // Placeholder
                 //setPanchayats(data.filter(item => item.blockDetails === 8)); // Filter if needed
-                setPanchayats(data); 
+                setPanchayats(response.data);
             } catch (error) {
                 console.error('Error fetching panchayats:', error);
                 setPanchayats([]);
@@ -157,8 +160,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             }
             try { 
                 // Assuming getTownPanchayatVillages fetches these based on town_panchayat_id
-                const data = await getTownPanchayatVillageStreetDetails(token);
-                setTownPanchayatVillages(data);
+                const response = await getTownPanchayatVillageStreetDetails(token);
+                setTownPanchayatVillages(response.data);
             } catch (error) {
                 console.error('Error fetching town panchayat villages:', error);
                 setTownPanchayatVillages([]);
@@ -167,32 +170,34 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         fetchTownPanchayatVillagesData();
     }, [token, selectedTownPanchayatId]);
 
-
     // --- Effect for pre-filling form data in EDIT MODE ---
     useEffect(() => {
         const fetchRecordForEdit = async () => {
-          console.log(isEditMode + 'record id ' + recordId  + ' token ' + token)
+          console.log(isEditMode + ' record id ' + recordId  + ' token ' + token)
             if (isEditMode && recordId && token) {
                 setLoading(true);
+
+                console.log('Selected service id', selectedServiceId)
                 try {
-                    var data = await getServiceRequestDetailsById(recordId, token);
-                    const record = data[0];
+                    var response = await getServiceRequestDetailsById(recordId, token);
+                    console.log('Data object ', response)
+                    const record = response.data;
                     console.log("Fetched record for edit:", record); // Debugging
                     record.town_panchayat_id = '';//temp
                     // Set formData with fetched record values, providing fallbacks
                     setFormData({
                         id:recordId,
-                        service_detail_id: record.service_id || '',
-                        //district_id: record.district_id ? String(record.district_id) : '1', // Ensure string
+                        service_id: record.service_id || selectedServiceId,
+                        service_details_id: record.service_details_id || 1,
+                        district_id: record.district_id ? String(record.district_id) : selectedDistrictId,
                         block_id: record.block_id ? String(record.block_id) : '',
                         town_panchayat_id: record.town_panchayat_id ? String(record.town_panchayat_id) : '',
                         panchayat_id: record.panchayat_id ? String(record.panchayat_id) : '',
                         village_street_id: record.village_street_id ? String(record.village_street_id) : '',
-                        village_name: record.village_name || '',
+                        //village_name: record.village_name || '',
                         ward_number: record.ward_number || '',
                         address_line1: record.address_line1 || '',
-                        street_name: record.street_name || '',
-                        job_num: record.job_num || '',
+                        street_name: record.street_name || 'இதர',
                         shop_num: record.shop_num || '',
                         ref_number: record.ref_number || '',
                         document_attachment: null, // File inputs cannot be pre-filled for security
@@ -201,18 +206,19 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         registered_mobile: record.registered_mobile || '',
                         contact_mobile: record.contact_mobile || '',
                         email_id: record.email_id || '',
-                        amount: record.amount ? String(record.amount) : '0.00', // Ensure amount is string for input
+                        amount: record.amount.substring(1) //remove currency symbol
                     });
 
                     // Set state variables for dropdowns to trigger dependent fetches and selections
-                    setSelectedServiceId(record.service_id ? String(record.service_id) : '1');
+                    setSelectedServiceId(record.service_id > 0 ? record.service_id : selectedServiceId);
+                    setSelectedServiceDetailsId(record.service_details_id > 0 ? record.service_details_id : selectedServiceDetailsId);
                     //setSelectedDistrictId(record.district_id ? String(record.district_id) : '1');
                     setSelectedBlockId(record.block_id ? String(record.block_id) : '2');
 
                     // Determine selectedBlockTownId and nested dropdowns
                     console.log('record.town_panchayat_id', record.town_panchayat_id)
                     console.log('record.panchayat_id', record.panchayat_id)
-                    
+
                     if (record.town_panchayat_id) {
                         setSelectedBlockTownId('2'); // Corresponds to "பேரூராட்சி"
                         
@@ -239,9 +245,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                                 }
                             }, 100);
                         }
-                    } else if (record.panchayat_id) { 
+                    } else if (record.panchayat_id) {
                         setSelectedBlockTownId('1'); // Corresponds to "ஊராட்சி"
-                        
                         setFilteredPanchayats(panchayats.filter(p => String(p.blockDetails) === String(selectedBlockId)));
                         if (record.village_street_id) {
                             setTimeout(() => { // Small delay
@@ -261,11 +266,12 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                                 }
                             }, 100);
                         }
-                        setSelectedPanchayatId(record.panchayat_id ? String(record.panchayat_id) : '');
-                        setSelectedTownPanchayatVillageId(record.village_street_id ? String(record.village_street_id) : '')
-
+                        console.log('seting panchayat id......')
+                        setSelectedPanchayatId(record.panchayat_id > 0 ? String(record.panchayat_id) : '0');
+                        setSelectedTownPanchayatVillageId(record.village_street_id > 0 ? String(record.village_street_id) : '0')
                     } else if (!record.town_panchayat_id && !record.panchayat_id && !record.revenue_village_id) {
                         setSelectedBlockTownId('3'); // Corresponds to "இதர" (direct street name input)
+
                     } else {
                         setSelectedBlockTownId('none');
                     }
@@ -286,16 +292,16 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             } else if (!isEditMode) {
                 // Reset form when not in edit mode (for new entries)
                 setFormData({
-                    service_detail_id: serviceId || '',
+                    service_id: serviceId || '',
+                    service_details_id: '',
                     district_id: '1',
                     block_id: '',
                     town_panchayat_id: '',
                     panchayat_id: '',
                     ward_number: '',
-                    village_name: '',
+                    //village_name: '',
                     address_line1: '',
-                    street_name: '',
-                    job_num: '',
+                    street_name: 'இதர',
                     shop_num: '',
                     ref_number: '',
                     document_attachment: null,
@@ -310,7 +316,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                     created_date: new Date().toDateString(),
                     updated_by: userData?.email,
                     updated_date: new Date().toDateString()
-                });
+                    });
                 setSelectedServiceId(serviceId || '');
                 setSelectedDistrictId('1');
                 setSelectedBlockTownId('none');
@@ -325,9 +331,22 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         fetchRecordForEdit();
     }, [isEditMode, recordId, token, serviceId, townPanchayatVillages]); // Added townPanchayatVillages as dependency for street_name prefill
 
+    // Place this hook in your component
+useEffect(() => {
+  console.log('--- Current FormData State (after update) ---');
+  for (const key in formData) {
+    console.log('key => data ', key, ' --- ', formData[key]);
+  }
+}, [formData]); // The hook runs whenever `formData` changes
+
     // --- General Change Handler for all text/select inputs ---
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+
+        console.log('e target ===? ',e.target)
+        console.log('name ===? ',name, value, ' type == ?', type)
+
 
         if (type === 'file') {
             const file = files[0];
@@ -335,7 +354,13 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             setFilePreview(file ? URL.createObjectURL(file) : null); // Create URL for preview
         } else {
             // Also update specific dropdown states if they are tied to form data fields
-            if (name === 'service_detail_id') setSelectedServiceId(value);
+            //if (name === 'service_id') setSelectedServiceId(value);
+            if (name === 'service_details_id')
+                {
+                    setSelectedServiceDetailsId(value);
+                    console.log('service details id', value)
+                    console.log('service details id', selectedServiceDetailsId)
+                    }
             if (name === 'district_id') setSelectedDistrictId(value);
             if (name === 'block_id')
             {
@@ -347,7 +372,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                     setFilteredPanchayats([]);
                 }
                 // Reset dependent dropdowns
-                setFilteredTownPanchayatVillages([]);  
+                setFilteredTownPanchayatVillages([]);
+                setFormData(prev => ({...prev,street_name: 'இதர-B'}));
             }  
             else if (name === 'town_panchayat_id') 
             {
@@ -359,6 +385,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 } else {
                     setFilteredTownPanchayatVillages([]);
                 }
+               setFormData(prev => ({...prev,street_name: 'இதர-TP'}));
             }
             else if (name === 'panchayat_id') 
             {
@@ -368,13 +395,48 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 } else {
                     setFilteredTownPanchayatVillages([]);
                 }
+                setFormData(prev => ({...prev,street_name: 'இதர-P'}));
             }
             else if (name === 'village_street_id') 
             {
               setSelectedTownPanchayatVillageId(value); // Assuming this is also a form field
             }
-            
-            setFormData(prev => ({ ...prev, [name]: value }));
+            else if(name === 'amount') {
+                console.log('Amount edit....')
+
+                console.log('Amount edit....')
+                // Use a regular expression to allow only numbers and a single decimal point
+                const validValue = value.replace(/[^0-9.]/g, '');
+                const parts = validValue.split('.');
+
+                // Ensure only one decimal point is present
+                if (parts.length > 2) {
+                    var formatedValue = (`${parts[0]}.${parts.slice(1).join('')}`);
+                    setFormData(prev => ({ ...prev, amount: formatedValue }));
+                } else {
+                    setFormData(prev => ({ ...prev, amount: validValue }));
+                }
+            }
+        }
+    };
+
+    // Formats the value when the user tabs out or clicks away
+    const handleBlur = (e) => {
+        let value = e.target.value;
+
+        // Clean the value and convert to a number
+        const numberValue = parseFloat(value);
+
+        // If it's a valid number, format it to two decimal places
+        if (!isNaN(numberValue)) {
+            // Apply a maximum value to prevent values greater than 9999.99
+            const cappedValue = Math.min(numberValue, 9999.99);
+            setFormData(prev => ({
+            ...prev,amount: cappedValue.toFixed(2)}));
+        } else {
+            // If the value is invalid (e.g., just '.'), reset to '0.00'
+            setFormData(prev => ({
+            ...prev,amount: '0.00'}));
         }
     };
 
@@ -390,11 +452,11 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         setFormData(prev => ({
             ...prev,
             block_id: '',
-            town_panchayat_id: '1',
+            town_panchayat_id: '',
             panchayat_id: '',
-            revenue_village_id: '1',
-            village_name: '', // Reset village_name as it might depend on these
-            street_name: '', // Reset street_name
+            revenue_village_id: '',
+            //village_name: '', // Reset village_name as it might depend on these
+            //street_name: '', // Reset street_name
         }));
     };
 
@@ -407,34 +469,42 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         try {
             const submitData = new FormData();
             // --- IMPORTANT: APPEND ALL YOUR DATA TO submitData HERE ---
-        // This is where you actually add key-value pairs to your FormData object
-
-        // Example: Iterate over your formData state and append
-        for (const key in formData) {
-            // Ensure you only append relevant fields and handle files specifically
-            if (key !== 'document_attachment' && formData[key] !== null && formData[key] !== undefined) {
-                submitData.append(key, formData[key]);
-            }
-        }
-
-        submitData.append('street_name', 'null1');
-        // Handle the file attachment specifically
-        if (formData.document_attachment instanceof File) {
-            submitData.append('document_attachment', formData.document_attachment, formData.document_attachment.name);
-        } else if (isEditMode && filePreview === null && recordId) {
-            // Optional: Logic to tell backend to clear an existing file if it was removed
-            // This depends on your backend's API design (e.g., submitData.append('document_attachment', ''))
-        }
+            // This is where you actually add key-value pairs to your FormData object
+            submitData.append('district_id', selectedDistrictId);
+            submitData.append('service_id', serviceId);
             // For new records, ensure service_id is explicitly set
             if (!isEditMode && serviceId) {
-                submitData.append('service_id', serviceId);
+                submitData.append('service_details_id', selectedServiceDetailsId);
             }
 
+            // Example: Iterate over your formData state and append
+            for (const key in formData) {
+                // Ensure you only append relevant fields and handle files specifically
+                if (key !== 'document_attachment' && formData[key] !== null && formData[key] !== undefined) {
+                    submitData.append(key, formData[key]);
+                }
+                // if(key === 'street_name' && formData[key] !== '') {
+                //     submitData.append('street_name', 'null1');
+                // }
+                if(selectedBlockTownId === '3') {
+                     submitData.append('block_id', '2');
+                }
+                console.log('submit key => data ', key, ' --- ', formData[key])
+            }
+
+            // Handle the file attachment specifically
+            if (formData.document_attachment instanceof File) {
+                console.log('FILE EXISTS.....');
+                submitData.append('document_attachment', formData.document_attachment, formData.document_attachment.name);
+            }
             if (isEditMode && recordId) {
-                console.log('token ', token)
+                console.log('FormData Contents:');
+                for (var pair of submitData.entries()) {
+                    console.log(pair[0]+ ': ' + pair[1]);
+                }
+
                 var response =await UpdateServiceRequestDetails(recordId, submitData, token);
-                if(response && response.success && response.status === 201) {
-                    console.log('response ', response)
+                if(response.success && response.status === 200) {
                     showMessage("Record updated successfully!", "success");
                 }
                 else {
@@ -442,10 +512,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 }
             } else {
                 var response = await CreateServiceRequestDetails(submitData, token);
-                console.log('response && response.status');
-                console.log(response  ,' === ', response.status);
-                if(response && response.success && response.status === 201) {
-                    console.log('response ', response)
+                if(response.success && response.status === 201) {
                     showMessage("Record created successfully!", "success");
                 }
                 else {
@@ -464,23 +531,24 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
+            <p>amount {formData.amount}</p>
             {loading && <div className="text-center py-2">Loading form data...</div>}
             {formError && <div className="alert alert-danger">{formError}</div>}
 
             <div className="row g-3">
                 {/* Service Detail ID */}
                 <div className="col-12 col-md-4">
-                    <label htmlFor="service_detail_id" className="form-label">சேவை வகை</label>
+                    <label htmlFor="service_details_id" className="form-label">வேலைகள்</label>
                     <select
-                        id="service_detail_id"
-                        name="service_detail_id"
+                        id="service_details_id"
+                        name="service_details_id"
                         className="form-select"
-                        value={selectedServiceId} // HIGHLIGHT: Bind value to state
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange to handler
+                        value={selectedServiceDetailsId} // HIGHLIGHT: Bind value to state
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange to handler
                         required
                     >
-                        <option value="">சேவையைத் தேர்ந்தெடுக்கவும்</option>
+                        <option value="">வேலையைத் தேர்ந்தெடுக்கவும்</option>
                         {serviceDetails.map(service => (
                             <option key={service.service_details_id} value={service.service_details_id}>
                                 {service.name}
@@ -490,17 +558,6 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                 </div>
 
                 <div className="col-12 col-md-4">
-                    <label htmlFor="job_num" className="form-label">வேலைகள்</label>
-                    <input
-                        type="text"
-                        id="job_num"
-                        name="job_num"
-                        className="form-control"
-                        value={formData.job_num} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
-                    />
-                </div>
-                <div className="col-12 col-md-4">
                     <label htmlFor="shop_num" className="form-label">கடை எண்</label>
                     <input
                         type="text"
@@ -508,7 +565,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="shop_num"
                         className="form-control"
                         value={formData.shop_num} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
                     />
                 </div>
                 <div className="col-12 col-md-4">
@@ -519,19 +576,22 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="ref_number"
                         className="form-control"
                         value={formData.ref_number} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
                     />
                 </div>
                 <div className="col-12 col-md-4">
                     <label htmlFor="amount" className="form-label">தொகை</label>
                     <input
-                        type="number" // Use type="number" for amount, but ensure value is string
+                        type="text" // Use type="number" for amount, but ensure value is string
                         id="amount"
                         name="amount"
                         className="form-control"
                         value={formData.amount} // HIGHLIGHT: Bind value (it's already a string from setFormData)
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
-                        step="0.01" // Allow decimal values
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        onBlur={handleBlur}
+                        inputMode="decimal"
+                        maxLength="7" // Provides a visual limit for the user
+                        placeholder="0.00"
                         required
                     />
                 </div>
@@ -543,7 +603,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="first_name"
                         className="form-control"
                         value={formData.first_name} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        maxLength={50}
                         required
                     />
                 </div>
@@ -555,7 +616,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="last_name"
                         className="form-control"
                         value={formData.last_name} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        maxLength={50}
                         required
                     />
                 </div>
@@ -568,7 +630,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         id="block_town_type"
                         className="form-select"
                         value={selectedBlockTownId} // HIGHLIGHT: Bind value
-                        onChange={handleBlockTownChange} // HIGHLIGHT: Use specific handler
+                        onInput={handleBlockTownChange} // HIGHLIGHT: Use specific handler
                         required
                     >
                         <option selected value="">பிரிவைத் தேர்ந்தெடுக்கவும்</option>
@@ -588,7 +650,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                                 name="block_id"
                                 className="form-select"
                                 value={selectedBlockId} // HIGHLIGHT: Bind value
-                                onChange={handleChange} // HIGHLIGHT: Bind onChange
+                                onInput={handleChange} // HIGHLIGHT: Bind onChange
                                 required
                             >
                                 <option value="">ஒன்றியத்தைத் தேர்ந்தெடுக்கவும்</option>
@@ -604,7 +666,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                                 name="panchayat_id"
                                 className="form-select"
                                 value={selectedPanchayatId} // HIGHLIGHT: Bind value
-                                onChange={handleChange} // HIGHLIGHT: Bind onChange
+                                onInput={handleChange} // HIGHLIGHT: Bind onChange
                                 required
                             >
                                 <option value="">ஊராட்சியைக் தேர்ந்தெடுக்கவும்</option>
@@ -624,7 +686,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                             name="town_panchayat_id"
                             className="form-select"
                             value={selectedTownPanchayatId} // HIGHLIGHT: Bind value
-                            onChange={handleChange} // HIGHLIGHT: Bind onChange
+                            onInput={handleChange} // HIGHLIGHT: Bind onChange
                             required
                         >
                             <option value="">பேரூராட்சியைக் தேர்ந்தெடுக்கவும்</option>
@@ -644,7 +706,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                             name="village_street_id" // Use this name for your formData
                             className="form-select"
                             value={selectedTownPanchayatVillageId} // HIGHLIGHT: Bind value
-                            onChange={handleChange} // HIGHLIGHT: Bind onChange
+                            onInput={handleChange} // HIGHLIGHT: Bind onChange
                             required
                         >
                             <option value="">தெரு/கிராமத்தைத் தேர்ந்தெடுக்கவும்</option>
@@ -663,19 +725,20 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="ward_number"
                         className="form-control"
                         value={formData.ward_number} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        maxLength={3}
                         required
                     />
                 </div>
                 <div className="col-12 col-md-4">
-                    <label htmlFor="address_line1" className="form-label">முகவரி வரி 1</label>
+                    <label htmlFor="address_line1" className="form-label">முகவரி</label>
                     <input
                         type="text"
                         id="address_line1"
                         name="address_line1"
                         className="form-control"
                         value={formData.address_line1} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
                         required
                     />
                 </div>
@@ -689,7 +752,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                             name="street_name"
                             className="form-control"
                             value={formData.street_name} // HIGHLIGHT: Bind value
-                            onChange={handleChange} // HIGHLIGHT: Bind onChange
+                            maxLength={50}
+                            onInput={handleChange} // HIGHLIGHT: Bind onChange
                         />
                     </div>
                 )}
@@ -703,7 +767,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="registered_mobile"
                         className="form-control"
                         value={formData.registered_mobile} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        maxLength={10}
                         required
                     />
                 </div>
@@ -715,7 +780,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="contact_mobile"
                         className="form-control"
                         value={formData.contact_mobile} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        maxLength={10}
                         required
                     />
                 </div>
@@ -727,7 +793,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         name="email_id"
                         className="form-control"
                         value={formData.email_id} // HIGHLIGHT: Bind value
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
+                        maxLength={50}
                         required
                     />
                 </div>
@@ -738,7 +805,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
                         id="document_attachment"
                         name="document_attachment"
                         className="form-control"
-                        onChange={handleChange} // HIGHLIGHT: Bind onChange
+                        onInput={handleChange} // HIGHLIGHT: Bind onChange
                         // Value prop for file inputs should generally not be set
                     />
                     {filePreview && (

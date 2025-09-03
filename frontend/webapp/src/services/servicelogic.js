@@ -2,218 +2,294 @@
 const ENDPOINT_BASE_URL = 'http://127.0.0.1:8000';
 const CONTENT_TYPE_JSON = 'application/json';
 
-//Common function 
-const fetchData = async (endpoint, options = {}) => {
-  try {
-    
-      //throw new Error(`Error: ${response.statusText}`);
-    console.log('options :' + options)
-    console.log(`${ENDPOINT_BASE_URL}/${endpoint}`)
-    const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, options);
-    console.log('response ', response)
-    console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
-    if (!response.ok) {
-      //throw new Error(`Error: ${response.statusText}`);
-      console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
-    }
+//Common function
+const fetchLoginData = async (endpoint, options = {}) => {
+    try {
+        //Create a base headers object with common headers
+        const headers = {
+            'Content-Type': CONTENT_TYPE_JSON,
+            ...options.headers, // Allow custom headers to override or extend
+        };
 
-    if (response.status === 201) {
-      console.log(`Service Request with ID ${endpoint} created successfully (201 Created).`);
-      return { success: true, status: 201, message: 'Record created successfully.' };
-    }
+        // Stringify the body if it's an object
+        const body = options.body ? JSON.stringify(options.body) : undefined;
 
-    if (response.status === 204) {
-      console.log(`Service Request with ID ${endpoint} deleted successfully (204 No Content).`);
-      return { success: true, status: 204, message: 'Record deleted successfully.' };
+        const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, {...options, headers, body});
+        return await handleResponse(response);
+      } catch (error) {
+       // Catch network errors (e.g., server is down, no internet connection)
+        console.error("Network error during API call:", error);
+        return {
+          success: false,
+          status: 0, // Use a non-HTTP status code for network errors
+          data: null,
+          error: error.message || "Network request failed."
+        };
     }
-      // No content, return an empty object or null
-    return await response.json();
+};
+
+const fetchData = async (endpoint, options = {}, token = null) => {
+    try {
+        console.log('body ',options.body)
+
+        const isFormData = options.body instanceof FormData;
+        const method = options.method ? options.method.toUpperCase() : 'GET';
+        const hasBody = ['POST', 'PUT', 'PATCH'].includes(method);
+        console.log('Is form data', isFormData)
+        const content_type = !isFormData || options.body === 'undefined' ? CONTENT_TYPE_JSON : null
+        const headers = new Headers();
+
+          // Add Content-Type header conditionally
+          if (hasBody && !isFormData) {
+            headers.set('Content-Type', 'application/json');
+          }
+
+          // Add Authorization header conditionally
+          if (token) {
+            headers.set('Authorization', `Token ${token}`);
+          }
+
+          // Add any other custom headers passed in the options
+          for (const key in options.headers) {
+            headers.set(key, options.headers[key]);
+          }
+
+        // Handle the body: do not stringify FormData
+        const body = (hasBody && !isFormData) ? JSON.stringify(options.body) : options.body;
+
+        const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, {...options, headers, body});
+        return await  handleResponse(response);
+
+    // if (!response.ok) {
+    //   throw new Error(`Error: ${response.statusText}`);
+    //   console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
+    // }
+    //
+    // if (response.status === 201) {
+    //   return { success: true, status: 201, message: 'Record created successfully.' };
+    // }
+    //
+    // if (response.status === 204) {
+    //   return { success: true, status: 204, message: 'Record deleted successfully.' };
+    // }
+    // //No content, return an empty object or null
+    //return await response.json();
   } catch (error) {
-    console.error('Fetch error:', error);
-    throw error;
-  }
+       // Catch network errors (e.g., server is down, no internet connection)
+        console.error("Network error during API call:", error);
+        return {
+          success: false,
+          status: 0, // Use a non-HTTP status code for network errors
+          data: null,
+          error: error.message || "Network request failed."
+        };
+    }
 };
 
 const fetchBlobData = async (endpoint, options = {}) => {
-  try {
-    const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, options);
-    if (!response.ok) {
-      //throw new Error(`Error: ${response.statusText}`);
-      console.log('Status Text: ' + response.statusText + ' Status :' +  response.status, 'Headers: ' + response.headers.status)
+    try {
+        const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, options);
+        return await handleResponse(response);
+    } catch (error) {
+       // Catch network errors (e.g., server is down, no internet connection)
+        console.error("Network error during API call:", error);
+        return {
+          success: false,
+          status: 0, // Use a non-HTTP status code for network errors
+          data: null,
+          error: error.message || "Network request failed."
+        };
     }
-      // No content, return an empty object or null
-    return await response;
-  } catch (error) {
-    console.error('Fetch blob error:', error);
-    throw error;
-  }
 };
 
 //Get users
-export const getUsers = (auth_data) => fetchData('api/users/GetLogin/', {
-    method: 'POST',
-    headers: { 
-    'Content-Type': CONTENT_TYPE_JSON
-    },
-    body: JSON.stringify(auth_data),
-});
-
-//forgot password
-export const getForgotPassword = (data) => {  fetchData('api/forgotpassword/',{
-    method: 'POST',
-    headers: {
-      'Content-Type': CONTENT_TYPE_JSON
-    },
-    body: JSON.stringify(data)
-  }
-)}
-
-
-//resetgot password - named function
-export const  ResetPassword  = (data) =>
-{
-   var x = fetchData('api/resetpassword/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': CONTENT_TYPE_JSON
-    },
-    body: JSON.stringify(data)
-  });
-  console.log('return ', x.response)
+export const getUsers = async (auth_data) => {
+    const response = await fetchLoginData('api/users/GetLogin/', {
+            method: 'POST',
+            body: auth_data
+        });
+    return await response;
 }
 
-export const postUser = (data) => fetchData('/api/users/', {
-  method: 'POST',
-  headers: { 
-  'Content-Type': CONTENT_TYPE_JSON
-  },
-  body: JSON.stringify(data)
-});
+//forgot password
+export const getForgotPassword = async (data) => {
+    const response = await fetchLoginData('api/forgotpassword/',{
+    method: 'POST',
+    body: data
+  });
+  return await response;
+}
 
+//restore password - named function
+export const  ResetPassword  = async (data) =>
+{
+    const response = await fetchLoginData('api/resetpassword/', {
+    method: 'POST',
+    body: data
+  });
+  return await response;
+}
 
-////Get service
-export const getMasterService = (token) => fetchData('api/service/services/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+export const postUser = async (data) => {
+    const response = await fetchLoginData('/api/users/', {
+        method: 'POST',
+        body: data
+    });
+    return await response;
+}
+
+//Get service
+export const getMasterService = async (token) => {
+    const response = await fetchData('api/service/services/', {
+        method: 'GET', token
+    });
+    return response;
+}
 
 //Get service details
-export const getServiceDetails = (token, serviceid) => fetchData(`api/service/servicesdetails/?serviceid=${serviceid}`, {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+export const getServiceDetails = async  (token, serviceid) => {
+    const response = await fetchData(`api/service/servicesdetails/?serviceid=${serviceid}`, {
+        method: 'GET', token
+    });
+    return response;
+}
 
 //Get service request details
-export const getServiceRequestDetails = (token, url, serviceid) => fetchData(`api/service/servicerequestdetails/${url ? url : ''}&serviceid=${serviceid}`, {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+export const getServiceRequestDetails = async (token, url, serviceid) => {
+    const response = await fetchData(`api/service/servicerequestdetails/${url ? url : ''}&serviceid=${serviceid}`, {
+        method: 'GET', token
+    });
+        console.log('ddd', response)
+    return await response;
+}
 
-export const CreateServiceRequestDetails = (formData, token) => fetchData('api/service/servicerequestdetails/', {
-  method: 'POST',
-  headers: { 
-    'authorization' :  `Token ${token}`
-    // 'Content-Type': CONTENT_TYPE_JSON
-  },
-  body: formData
-  //JSON.stringify(jsonData)  
-});
+export const CreateServiceRequestDetails = async (formData, token) => {
+    const response = await fetchData('api/service/servicerequestdetails/', {
+        method: 'POST',
+        body: formData, token
+    });
 
-export const getServiceRequestDetailsById = (id, token) => fetchData(`api/service/servicerequestdetails/${id}/`, {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+    return await response;
+}
+
+export const getServiceRequestDetailsById = async (id, token) => {
+    const response = await fetchData(`api/service/servicerequestdetails/${id}/`, {
+        method: 'GET', token
+    });
+    return await response;
+}
 
 // This is the function you need for updating
-export const UpdateServiceRequestDetails = (recordId, formData, token) => fetchData(`api/service/servicerequestdetails/${recordId}/`, {
-    method: 'PUT', // Changed method from POST to PUT
-    headers: {
-        'authorization': `Token ${token}`//,
-        //'Content-Type': CONTENT_TYPE_JSON
-    },
-    body: formData
-    //body: JSON.stringify(data)
-});
+export const UpdateServiceRequestDetails = async (recordId, formData, token) => {
+    const response = await fetchData(`api/service/servicerequestdetails/${recordId}/`, {
+        method: 'PUT', // Changed method from POST to PUT
+        body: formData, token
+    });
+    return await response;
+}
 
+export const DeleteServiceRequestDetails = async (recordId, token) => {
+    const response = await fetchData(`api/service/servicerequestdetails/${recordId}/`, {
+        method: 'DELETE',token
+    });
+    return await response;
+}
 
-export const DeleteServiceRequestDetails = (recordId, token) => fetchData(`api/service/servicerequestdetails/${recordId}/`, {
-    method: 'DELETE', 
-    headers: {
-        'authorization': `Token ${token}`//,
-        //'Content-Type': CONTENT_TYPE_JSON
-    }
-});
-
-export const GenerateCertificate = (recordId, token) => fetchBlobData(`api/service/servicerequestdetails/${recordId}/generate_certificate`, {
-    method: 'GET',
-    headers: {
-        'authorization': `Token ${token}`//,
-    }
-});
+export const GenerateCertificate = async (recordId, token) => {
+    const response = await fetchBlobData(`api/service/servicerequestdetails/${recordId}/generate_certificate`, {
+        method: 'GET',
+        headers: {
+            'authorization': `Token ${token}`
+        }
+    });
+    return await response;
+}
 
 //Get district details
-export const getDistrictDetails = (token, url) => fetchData('api/master/districtdetails/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+export const getDistrictDetails = async (token, url) => {
+    const response = await fetchData('api/master/districtdetails/', {
+        method: 'GET',token
+    });
+    return await response;
+}
 
 //Get block details
-export const getBlockDetails = (token, url) => fetchData('api/master/blocklist/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
-
+export const getBlockDetails = async (token, url) => {
+    const response = await fetchData('api/master/blocklist/', {
+        method: 'GET',token
+    });
+    return await response;
+}
 //Get town panchayat details
-export const getTownPanchayatDetails = (token, url) => fetchData('api/master/townpanchayatlist/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
-
+export const getTownPanchayatDetails = async (token, url) => {
+    const response = await fetchData('api/master/townpanchayatlist/', {
+        method: 'GET',token
+    });
+    return await response;
+}
 
 //Get panchayat details
-export const getPanchayatDetails = (token, url) => fetchData('api/master/panchayatlist/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
-
+export const getPanchayatDetails = async (token, url) => {
+    const response = await fetchData('api/master/panchayatlist/', {
+        method: 'GET',token
+    });
+    return await response;
+}
 //Get revenue village details
-export const getRevenueVillages = (token, url) => fetchData('api/master/revenuevillagelist/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+export const getRevenueVillages = async (token, url) => {
+    const response = await fetchData('api/master/revenuevillagelist/', {
+        method: 'GET',token
+    });
+    return await response;
+}
 
 //Get town panchayat village street details
-export const getTownPanchayatVillageStreetDetails = (token, url) => fetchData('api/master/townvillagestreetlist/', {
-  method: 'GET',
-  headers: { 
-    'authorization' :  `Token ${token}`,
-    'Content-Type': CONTENT_TYPE_JSON
-  }
-});
+export const getTownPanchayatVillageStreetDetails = async (token, url) => {
+    const response = await fetchData('api/master/townvillagestreetlist/', {
+        method: 'GET', token
+    });
+    return await response;
+}
+
+/**
+ * Handles an API response, throwing a detailed error for non-OK statuses.
+ * @param {Response} response The raw fetch Response object.
+ * @returns {Promise<any>} A promise that resolves with the parsed JSON data.
+ */
+async function handleResponse(response) {
+    console.log('handle response ', response)
+    // Check if the response is successful (e.g., status 2xx)
+    const isSuccess = response.ok;
+
+    // Determine if the response has JSON content
+    const contentType = response.headers.get("content-type");
+    const isJson = contentType && contentType.includes("application/json");
+
+    let data = null;
+    let error = null;
+
+    // Only attempt to parse JSON if the content type is JSON
+    if (isJson) {
+        try {
+          data = await response.json();
+        } catch (e) {
+          // Handle cases where parsing the JSON fails
+        console.error("Failed to parse JSON response:", e);
+        error = "Invalid JSON response from server.";
+        }
+    }
+
+    // If the response was not a success, create an error object
+    if (!isSuccess) {
+        // You could also pull the error message from the 'data' object if available
+        error = error || (data && data.message) || `Request failed with status: ${response.status}`;
+    }
+
+    // Return a single, consistent object
+    return {
+        success: isSuccess,
+        status: response.status,
+        data: data,
+        error: error
+    };
+}

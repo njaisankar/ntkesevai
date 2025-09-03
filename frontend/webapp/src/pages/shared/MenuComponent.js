@@ -12,8 +12,8 @@ const MenuComponent = ({ selectedServiceId, onSelect, userData }) => {
             if (masterServiceLoading) {
                 const token = userData?.token;
                 const fetchedDetails = await getMasterService(token);
-                console.log('Master service list', fetchedDetails);
-                setMasterServiceDetails(fetchedDetails);
+                console.log('Master service list',await fetchedDetails.data);
+                setMasterServiceDetails(await fetchedDetails.data);
                 // Consider if you really want to store objects directly in localStorage this way.
                 // localStorage.setItem('masterServiceList', JSON.stringify(fetchedDetails)); // Store stringified JSON
             }

@@ -51,7 +51,7 @@ const BeneficiaryLinksBar = ({ serviceId }) => {
         <div className="beneficiary-links-bar">
             {links.length > 0 ? (
                 <>
-                    <p>Quick Links for Beneficiaries:</p>
+                    <p className="beneficiary-links-bar-title">Quick Links for Beneficiaries:</p>
                     <div className="links-container">
                         {links.map((link, index) => (
                             <a

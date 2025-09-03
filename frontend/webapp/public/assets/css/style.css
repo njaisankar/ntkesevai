@@ -7,15 +7,15 @@ http://www.templatemo.com/tm-490-comila
 */
 
 
-body
-	{
-		background: #ffffff;
+html, body, #root
+{
+    background: #ffffff;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 400;
-	}
+    font-size: 100%;
 
-  html {
-  font-size: 100%;
+    height: 100%;
+    margin: 0;
 }
 
 h1,h2,h3 {
@@ -35,7 +35,7 @@ h3 {
 }
 
 p {
-  color: #828282;
+  color: #58151c;
   letter-spacing: 0.8px;
   line-height: 28px;
 }

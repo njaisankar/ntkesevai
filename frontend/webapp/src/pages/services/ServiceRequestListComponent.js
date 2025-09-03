@@ -100,9 +100,8 @@ const ServiceRequestList = ({ serviceId, userData }) => {
 
             // HIGHLIGHT: Ensure responseData.results is always an array
             // This is the most crucial part to prevent 'length' errors if results is missing/null.
-            setRequests(responseData?.results || []);
-            setPageCount(Math.ceil((responseData?.count || 0) / pagination.pageSize));
-
+            setRequests(await responseData?.data.results || []);
+            setPageCount(Math.ceil(await (responseData?.data.count || 0) / pagination.pageSize));
         } catch (error) {
             console.error("Error fetching service requests:", error);
             setRequests([]); // HIGHLIGHT: Ensure 'data' is reset to an empty array on error
@@ -131,7 +130,7 @@ const ServiceRequestList = ({ serviceId, userData }) => {
             { header: "ID", accessorKey: "id" },
             { header: "வேலைகள் தலைப்பு", accessorKey: "service_detail_name" }, // Adjusted based on common API responses
             { header: "தலைப்பு", accessorKey: "district_id" },
-            { header: "வேலைகள்", accessorKey: "job_num" },
+            { header: "வேலைகள்", accessorKey: "service_details_id" },
             { header: "கடை எண்", accessorKey: "shop_num" },
             { header: "குறிப்பு எண்", accessorKey: "ref_number" },
             { header: "தொகை", accessorKey: "amount" },

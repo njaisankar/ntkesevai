@@ -1,5 +1,7 @@
 body, html {
-  font-family: 'Poppins', Arial, sans-serif;
+    font-family: 'Poppins', Arial, sans-serif;
+    height: 100%;
+    margin: 0;
 }
 
 .app-header,
@@ -282,10 +284,33 @@ html, body, #root {
   min-height: 200vh; /* Make sure it takes at least the full viewport height */
 }
 
+.fdashboard-container {
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    min-height: 100vh; /* Ensure it's at least the height of the viewport */
+}
+
+/* 3. Non-scrolling content inside the main area */
+.beneficiary-links-wrapper {
+  /* This item will just take its natural height.
+     No need for special flex properties here.
+  */
+  background-color: beige;
+  padding: 1px; /* Optional: adds some spacing */
+}
+
 .main-content { /* The wrapper around your actual page content (HomeComponent, ServiceRequestList) */
-  flex-grow: 1; /* This is key: it makes the main content area expand to fill available space */
-  padding-bottom: 20px; /* Add some padding if needed before the footer */
-  /* Add padding-top if you have a fixed header */
+    flex-grow: 1; /* This is key: it makes the main content area expand to fill available space */
+    display: flex;
+    flex-direction: column;
+    /* Add padding-top if you have a fixed header */
+    padding: 1rem;
+    box-sizing: border-box; /* Ensures padding is included in the height/width */
+}
+
+.scrollable-grid-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .footer {

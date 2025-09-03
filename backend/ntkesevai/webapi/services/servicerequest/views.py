@@ -15,7 +15,7 @@ from ntkesevai.webapi.services.utils.receipt_certificate import generate_certifi
 
 from ntkesevai.webapi.models import Service, ServiceDetails, ServiceLinks, ServiceRequestDetails
 from ntkesevai.webapi.services.servicerequest.serializers import ServiceSerializer, ServiceDetailsSerializer, ServiceRequestSerializer
-
+from rest_framework.parsers import MultiPartParser, FormParser
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,8 +76,12 @@ class ServiceRequestForEditRecordView(APIView):
             
 class ServiceRequestViewSet(viewsets.ModelViewSet):
     queryset = ServiceRequestDetails.objects.all()
+    print('edit ', queryset)
     serializer_class = ServiceRequestSerializer
     pagination_class = CustomPagination
+    # 💡 This is the critical line you are missing.
+    # It tells the viewset to accept both multipart and form data for all methods.
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
         queryset = super().get_queryset()

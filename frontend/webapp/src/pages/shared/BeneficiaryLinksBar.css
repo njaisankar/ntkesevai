@@ -1,6 +1,6 @@
 /* Styles for the overall beneficiary links bar (no change from last version) */
 .beneficiary-links-bar {
-    background-color: #fcfcfc;
+    background-color: #f2e7c3;
     margin-top: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -17,9 +17,9 @@
 /* Styling for the "Quick Links:" title (no change) */
 .beneficiary-links-bar-title {
     display: block;
-    margin: 0 0 10px 0;
-    font-size: 0.9rem;
-    color: #777;
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    color: #58151c;
     font-weight: 500;
 }
 
@@ -28,15 +28,15 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px; /* Space between individual links */
+    gap: 10px; /* Space between individual links */
 }
 
 /* --- UPDATED Styling for individual beneficiary links --- */
 .beneficiary-links-bar a {
-    color: #444; /* Default dark grey for text */
+    color: #58151c; /* Default dark grey for text */
     text-decoration: none; /* No underline by default */
-    font-size: 0.9rem; /* Smaller font size for conciseness */
-    font-weight: 500; /* Normal weight for textual links */
+    font-size: 1.0rem; /* Smaller font size for conciseness */
+    font-weight: 200; /* Normal weight for textual links */
 
     /* The "elegant rounded box" properties */
     background-color: #fefefe; /* Very light, almost white background for the box */
