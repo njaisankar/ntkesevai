@@ -54,7 +54,6 @@ class RevenueVillageSerializer(serializers.ModelSerializer):
     #def get_panchayat_name(self, obj):
     #      return obj.panchayatDetails.name
 
-
 class TownPanchayatVillageSerializer(serializers.ModelSerializer):
     class Meta:
         managed = False

@@ -285,7 +285,6 @@ const HomeComponent = (location) => {
             <footer>
               <div className="container">
                 <div className="row">
-
                   <svg className="svgcolor-light" preserveAspectRatio="none" viewBox="0 0 100 102" height="100" width="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 0 L50 100 L100 0 Z"></path>
                   </svg>
@@ -293,8 +292,8 @@ const HomeComponent = (location) => {
                   <div className="col-md-7 col-sm-6">
                     <h2 className='whiteColorHeading'>{data.results[7].heading}</h2>
                       <div className="wow fadeInUp" data-wow-delay="0.3s">
-                        <p>{data.results[7].sub_heading}</p>
-                        <p className="copyright-text">காப்புரிமை &copy; 2025 நாம் தமிழர் கட்சி, வீரபாண்டி தொகுதி, சேலம் மாவட்டம்.<br />
+                        <p className="whiteColorHeading">{data.results[7].sub_heading}</p>
+                        <p className="copyright-text whiteColorHeading">காப்புரிமை &copy; 2025 நாம் தமிழர் கட்சி, வீரபாண்டி தொகுதி, சேலம் மாவட்டம்.<br />
                           வடிவமைத்தவர் :  <a rel="nofollow" href="http://pairchikoodam.com/" target="_blank">Pairchikoodam</a></p>
                       </div>
                   </div>
@@ -303,7 +302,7 @@ const HomeComponent = (location) => {
 
                   <div className="col-md-3 col-sm-4">
                     <h2 className='whiteColorHeading'>தொடர்புக்கு</h2>
-                    <p className="wow fadeInUp" data-wow-delay="0.6s">
+                    <p className="wow fadeInUp whiteColorHeading" data-wow-delay="0.6s">
                     +91 9739856191
                     </p>
                     <ul className="social-icon">

@@ -1,5 +1,9 @@
 from rest_framework import serializers
+from ntkesevai.webapi.services.master.serializers import DistrictSerializer, BlockSerializer, TownPanchayatSerializer, PanchayatSerializer, RevenueVillageSerializer, TownPanchayatVillageSerializer
 from ntkesevai.webapi.models import Service,ServiceDetails, ServiceLinks, ServiceRequestDetails
+from ntkesevai.webapi.models import DistrictDetails
+from ntkesevai.webapi.models import BlockDetails, TownPanchayatDetails, PanchayatDetails, RevenueVillageDetails, VillageStreetDetails
+
 
 class ServiceSerializer(serializers.Serializer):
     service_id = serializers.IntegerField()
@@ -32,11 +36,37 @@ class ServiceLinksSerializer(serializers.Serializer):
         fields =  '__all__'   
 
 class ServiceRequestSerializer(serializers.ModelSerializer):
+    service_details = ServiceDetailsSerializer(read_only=True)
+    district = DistrictSerializer(read_only=True)
+    block = BlockSerializer(read_only=True)
+    town_panchayat = TownPanchayatSerializer(read_only=True)
+    panchayat = PanchayatSerializer(read_only=True)
+    village_street = TownPanchayatVillageSerializer(read_only=True)
     class Meta:
         model = ServiceRequestDetails
         fields = '__all__'
 
-class ServiceRequestListSerializer(serializers.ModelSerializer):
+# This serializer is for all write operations (POST/PUT/PATCH)
+class ServiceRequestWriteSerializer(serializers.ModelSerializer):
+    district_id = serializers.PrimaryKeyRelatedField(
+        queryset=DistrictDetails.objects.all(),
+        source='district',  # Maps 'district_id' from input to model.district
+        required=True
+    )
+
+    block_id = serializers.PrimaryKeyRelatedField(
+        queryset=BlockDetails.objects.all(),
+        source='block',  # Maps 'block_id' from input to model.block
+        required=True
+    )
+
+    service_details_id = serializers.PrimaryKeyRelatedField(
+        queryset=ServiceDetails.objects.all(),
+        source='service_details',
+        required=True
+    )
     class Meta:
         model = ServiceRequestDetails
+        # Include all fields, the foreign keys will automatically expect IDs
         fields = '__all__'
+

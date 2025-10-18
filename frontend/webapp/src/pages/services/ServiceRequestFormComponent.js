@@ -12,13 +12,15 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
         service_id: serviceId || '', // Use prop serviceId for new records
         service_details_id: '',
         district_id: '1', // Default as '1'
+        district:'1',
         block_id: '',
+        block:'',
         town_panchayat_id: '',
         panchayat_id: '',
         ward_number: '',
         //village_name: '', // Default village name
         address_line1: '',
-        street_name: 'இதர', // Default street name
+        street_name: '',
         shop_num: '',
         ref_number: '',
         document_attachment: null, // File inputs are special
@@ -65,8 +67,8 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             if (!token) return;
             try {
                 const response = await getServiceDetails(token, serviceId);
-                console.log('Service Id ',serviceId)
-                console.log('Service details for {serviceId} ', response)
+                console.log('fetchServiceDetailsData method called ==> Service Id ',serviceId)
+                console.log('Service details for =>', serviceId, ' =>', response.data)
                 setServiceDetails(response.data)
                 // If in edit mode, and serviceId is pre-set, you might need to find the correct master service.
             } catch (error) {
@@ -101,6 +103,7 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             try {
                 const response = await getBlockDetails(token, selectedDistrictId);
                 setBlocks(response.data);
+                console.log('block details fetch method called...')
             } catch (error) {
                 console.error('Error fetching blocks:', error);
                 setBlocks([]);
@@ -119,8 +122,11 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             try {
                 // Assuming getMasterService also has town panchayats, or a dedicated API call
                 // For example: await getTownPanchayats(token, selectedDistrictId);
-                const response = await getTownPanchayatDetails(token); // Placeholder, adjust as per your actual API
-                setTownPanchayats(response.data.filter(item => item.category === 'town_panchayat_type')); // Filter if getMasterService returns mixed data
+                const response = await getTownPanchayatDetails(token, selectedDistrictId); // Placeholder, adjust as per your actual API
+                //setTownPanchayats(response.data.filter(item => item.category === 'town_panchayat_type')); // Filter if getMasterService returns mixed data
+                setTownPanchayats(response.data); // Filter if getMasterService returns mixed data
+
+                console.log('town panchayat details fetch method called...', response.data)
             } catch (error) {
                 console.error('Error fetching town panchayats:', error);
                 setTownPanchayats([]);
@@ -168,185 +174,227 @@ const ServiceRequestForm = ({ onClose, onSaved, isEditMode, recordId, serviceId,
             }
         };
         fetchTownPanchayatVillagesData();
-    }, [token, selectedTownPanchayatId]);
+    }, [token], selectedDistrictId);
 
-    // --- Effect for pre-filling form data in EDIT MODE ---
+    //Filter Town Panchayats based on Block ID
+    useEffect(() => {
+        // Check for the source data AND the ID needed for filtering
+        if (selectedBlockId && townPanchayats.length > 0) {console.log('new filter user effets for town panchayat', selectedBlockId)
+            setFilteredTownPanchayats(townPanchayats.filter(p =>
+                String(p.blockDetails) === String(selectedBlockId)
+            ));
+        } else {
+            setFilteredTownPanchayats([]);
+        }
+    }, [selectedBlockId, townPanchayats]); // Only runs when Block ID changes or source data arrives
+
+    //Filter Panchayat based on selected Block
+    useEffect(() => {
+        if (selectedBlockId && panchayats.length > 0) {
+        console.log('Filter Panchayat based on selected Block =>', selectedBlockId)
+            setFilteredPanchayats(panchayats.filter(rv =>
+                String(rv.blockDetails) === String(selectedBlockId)
+            ));
+        } else {
+            setFilteredPanchayats([]);
+        }
+    }, [selectedBlockId, panchayats]);
+
+    //Filter Town or Panchayat Villages based on Town Panchayat ID or Panchayat ID
+    useEffect(() => {
+        if ((selectedTownPanchayatId || selectedPanchayatId) && townPanchayatVillages.length > 0) {
+            console.log('Filter Town or Panchayat Villages based on Town Panchayat ID =>', selectedTownPanchayatId, ' Panchayat Id =>', selectedPanchayatId, townPanchayatVillages)
+            setFilteredTownPanchayatVillages(townPanchayatVillages.filter(rv =>
+                String(rv.town_panchayat_id) === String(selectedTownPanchayatId) || String(rv.village_panchayat_id) === String(selectedPanchayatId)
+            ));
+        } else {
+            setFilteredTownPanchayatVillages([]);
+        }
+    }, [selectedTownPanchayatId, selectedPanchayatId, townPanchayatVillages]);
+
+    //Effect for pre-filling form data in EDIT MODE
     useEffect(() => {
         const fetchRecordForEdit = async () => {
-          console.log(isEditMode + ' record id ' + recordId  + ' token ' + token)
-            if (isEditMode && recordId && token) {
-                setLoading(true);
-
-                console.log('Selected service id', selectedServiceId)
-                try {
-                    var response = await getServiceRequestDetailsById(recordId, token);
-                    console.log('Data object ', response)
-                    const record = response.data;
-                    console.log("Fetched record for edit:", record); // Debugging
-                    record.town_panchayat_id = '';//temp
-                    // Set formData with fetched record values, providing fallbacks
-                    setFormData({
-                        id:recordId,
-                        service_id: record.service_id || selectedServiceId,
-                        service_details_id: record.service_details_id || 1,
-                        district_id: record.district_id ? String(record.district_id) : selectedDistrictId,
-                        block_id: record.block_id ? String(record.block_id) : '',
-                        town_panchayat_id: record.town_panchayat_id ? String(record.town_panchayat_id) : '',
-                        panchayat_id: record.panchayat_id ? String(record.panchayat_id) : '',
-                        village_street_id: record.village_street_id ? String(record.village_street_id) : '',
-                        //village_name: record.village_name || '',
-                        ward_number: record.ward_number || '',
-                        address_line1: record.address_line1 || '',
-                        street_name: record.street_name || 'இதர',
-                        shop_num: record.shop_num || '',
-                        ref_number: record.ref_number || '',
-                        document_attachment: null, // File inputs cannot be pre-filled for security
-                        first_name: record.first_name || '',
-                        last_name: record.last_name || '',
-                        registered_mobile: record.registered_mobile || '',
-                        contact_mobile: record.contact_mobile || '',
-                        email_id: record.email_id || '',
-                        amount: record.amount.substring(1) //remove currency symbol
-                    });
-
-                    // Set state variables for dropdowns to trigger dependent fetches and selections
-                    setSelectedServiceId(record.service_id > 0 ? record.service_id : selectedServiceId);
-                    setSelectedServiceDetailsId(record.service_details_id > 0 ? record.service_details_id : selectedServiceDetailsId);
-                    //setSelectedDistrictId(record.district_id ? String(record.district_id) : '1');
-                    setSelectedBlockId(record.block_id ? String(record.block_id) : '2');
-
-                    // Determine selectedBlockTownId and nested dropdowns
-                    console.log('record.town_panchayat_id', record.town_panchayat_id)
-                    console.log('record.panchayat_id', record.panchayat_id)
-
-                    if (record.town_panchayat_id) {
-                        setSelectedBlockTownId('2'); // Corresponds to "பேரூராட்சி"
-                        
-                        // After townPanchayatVillages are loaded by its useEffect, find matching village
-                        // This might require a small delay or a separate effect if townPanchayatVillages isn't immediately available
-                        if (record.village_street_id) {
-                            // This might need to run after townPanchayatVillages are fetched and available
-                            // For simplicity, directly try to find it. In a complex form, you might use a ref or an additional useEffect.
-                             setTimeout(() => { // Small delay to allow townPanchayatVillages to populate
-                                const matchingVillage = filteredTownPanchayatVillages.find(v => v.id === record.village_street_id);
-                                if (matchingVillage) {
-                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
-                                }
-                            }, 100); // Adjust delay if needed
-                        }
-                        setSelectedTownPanchayatId(String(record.town_panchayat_id));
-
-                        setFilteredTownPanchayatVillages(townPanchayatVillages.filter(p => String(p.town_panchayat_id) === String(selectedTownPanchayatId)));
-                        if (record.village_street_id) {
-                            setTimeout(() => { // Small delay
-                                const matchingVillage = filteredTownPanchayatVillages.find(v => v.id === record.village_street_id);
-                                if (matchingVillage) {
-                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
-                                }
-                            }, 100);
-                        }
-                    } else if (record.panchayat_id) {
-                        setSelectedBlockTownId('1'); // Corresponds to "ஊராட்சி"
-                        setFilteredPanchayats(panchayats.filter(p => String(p.blockDetails) === String(selectedBlockId)));
-                        if (record.village_street_id) {
-                            setTimeout(() => { // Small delay
-                                const matchingVillage = filteredPanchayats.find(v => v.id === record.panchayat_id);
-                                if (matchingVillage) {
-                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
-                                }
-                            }, 100);
-                        }
-
-                        setFilteredTownPanchayatVillages(townPanchayatVillages.filter(p => String(p.village_panchayat_id) === String(selectedPanchayatId)));
-                        if (record.village_street_id) {
-                            setTimeout(() => { // Small delay
-                                const matchingVillage = filteredTownPanchayatVillages.find(v => v.id === record.village_street_id);
-                                if (matchingVillage) {
-                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
-                                }
-                            }, 100);
-                        }
-                        console.log('seting panchayat id......')
-                        setSelectedPanchayatId(record.panchayat_id > 0 ? String(record.panchayat_id) : '0');
-                        setSelectedTownPanchayatVillageId(record.village_street_id > 0 ? String(record.village_street_id) : '0')
-                    } else if (!record.town_panchayat_id && !record.panchayat_id && !record.revenue_village_id) {
-                        setSelectedBlockTownId('3'); // Corresponds to "இதர" (direct street name input)
-
-                    } else {
-                        setSelectedBlockTownId('none');
-                    }
-
-                    // For existing file, display its URL
-                    if (record.document_attachment) {
-                        setFilePreview(record.document_attachment);
-                    } else {
-                        setFilePreview(null);
-                    }
-
-                } catch (error) {
-                    console.error('Error fetching service request for edit:', error);
-                    setFormError('Failed to load record for editing. Please try again.');
-                } finally {
-                    setLoading(false);
-                }
-            } else if (!isEditMode) {
-                // Reset form when not in edit mode (for new entries)
+        //console.log('fetchRecordForEdit method called => ', isEditMode + ' record id ' + recordId  + ' token ' + token)
+        if (isEditMode && recordId && token) {
+            setLoading(true);
+            console.log('Selected service id', selectedServiceId)
+            try {
+                var response = await getServiceRequestDetailsById(recordId, token);
+                //console.log('Data object ', response)
+                const record = response.data.results[0];
+                //console.log("Fetched record for edit:", record); // Debugging
+                //record.town_panchayat_id = '';//temp
+                // Set formData with fetched record values, providing fallbacks
+                console.log('record.district.district_id ? String(record.district_id)', record.district.district_id, String(record.district_id))
                 setFormData({
-                    service_id: serviceId || '',
-                    service_details_id: '',
-                    district_id: '1',
-                    block_id: '',
-                    town_panchayat_id: '',
-                    panchayat_id: '',
-                    ward_number: '',
-                    //village_name: '',
-                    address_line1: '',
-                    street_name: 'இதர',
-                    shop_num: '',
-                    ref_number: '',
-                    document_attachment: null,
-                    first_name: '',
-                    last_name: '',
-                    registered_mobile: '',
-                    contact_mobile: '',
-                    email_id: '',
-                    amount: '0.00',
-                    status: 'pending',
-                    created_by: userData?.email,
-                    created_date: new Date().toDateString(),
-                    updated_by: userData?.email,
-                    updated_date: new Date().toDateString()
-                    });
-                setSelectedServiceId(serviceId || '');
-                setSelectedDistrictId('1');
-                setSelectedBlockTownId('none');
-                setSelectedBlockId('');
-                setSelectedTownPanchayatId('');
-                setSelectedPanchayatId('');
-                setSelectedTownPanchayatVillageId('');
-                setFilePreview(null);
+                    id:recordId,
+                    service_id: record.service_details.service_id || selectedServiceId,
+                    service_details_id: record.service_details.service_details_id || 1,
+                    district_id: 1,
+                    block_id: record.block.block_id ? String(record.block.block_id) : '',
+                    town_panchayat_id: record.town_panchayat?.town_panchayat_id ? String(record.town_panchayat?.town_panchayat_id) : '',
+                    panchayat_id: record.panchayat?.panchayat_id ? String(record.panchayat?.panchayat_id) : '',
+                    village_street_id: record.village_street?.id ? String(record.village_street?.id) : '',
+                    //village_name: record.village_name || '',
+                    ward_number: record.ward_number || '',
+                    address_line1: record.address_line1 || '',
+                    street_name: record.street_name || 'இதர',
+                    shop_num: record.shop_num || '',
+                    ref_number: record.ref_number || '',
+                    document_attachment: null, // File inputs cannot be pre-filled for security
+                    first_name: record.first_name || '',
+                    last_name: record.last_name || '',
+                    registered_mobile: record.registered_mobile || '',
+                    contact_mobile: record.contact_mobile || '',
+                    email_id: record.email_id || '',
+                    amount: record.amount.substring(1) //remove currency symbol
+                });
+
+                // Set state variables for dropdowns to trigger dependent fetches and selections
+                setSelectedServiceId(record.service_id > 0 ? record.service_id : selectedServiceId);
+                setSelectedServiceDetailsId(record.service_details.service_details_id > 0 ? record.service_details.service_details_id : selectedServiceDetailsId);
+                setSelectedDistrictId(record.district_id ? String(record.district_id) : '1');
+                setSelectedBlockId(record.block.block_id);
+
+                // Determine selectedBlockTownId and nested dropdowns
+                //console.log('record.town_panchayat_id', record.town_panchayat?.town_panchayat_id)
+                //console.log('record.panchayat_id', record.panchayat?.id)
+
+                if (record.town_panchayat?.town_panchayat_id)
+                {
+                    setSelectedBlockTownId('2'); // Corresponds to "பேரூராட்சி"
+//                        if (record.block.block_id) {
+//                            setSelectedDistrictId(1);
+//                            console.log('town panchayat data ',townPanchayats)
+//                            //setFilteredPanchayats(panchayats.filter(p => String(p.blockDetails) === String(record.block.block_id)));
+//                            setFilteredTownPanchayats(townPanchayats.filter(p => String(p.blockDetails) === String(record.block.block_id)));
+//
+//                            console.log('block if stmt. filtered town panchayats ', filteredTownPanchayats)
+//                        } else {
+//                            setFilteredPanchayats([]);
+//                        }
+
+                    setSelectedTownPanchayatId(record.town_panchayat?.town_panchayat_id);
+                    //console.log('selected block id => ', record.block.block_id)
+
+                    //setFilteredTownPanchayats(townPanchayats);
+
+                    // After townPanchayatVillages are loaded by its useEffect, find matching village
+                    // This might require a small delay or a separate effect if townPanchayatVillages isn't immediately available
+//                        if (record.village_street?.id) { console.log('record.village_street?.id => ', record.village_street?.id)
+//                            // This might need to run after townPanchayatVillages are fetched and available
+//                            // For simplicity, directly try to find it. In a complex form, you might use a ref or an additional useEffect.
+//                             setTimeout(() => { // Small delay to allow townPanchayatVillages to populate
+//                                const matchingVillage = filteredTownPanchayatVillages.find(v => v.id === record.village_street?.id);
+//                                if (matchingVillage) {
+//                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
+//                                }
+//                            }, 100); // Adjust delay if needed
+//                        }
+//
+//                        setFilteredTownPanchayatVillages(townPanchayatVillages.filter(p => String(p.town_panchayat?.town_panchayat_id) === String(selectedTownPanchayatId)));
+                                setSelectedTownPanchayatVillageId(record.village_street?.id);
+//                        if (record.village_street?.id) {
+//                            setTimeout(() => { // Small delay
+//                                const matchingVillage = filteredTownPanchayatVillages.find(v => v.id === record.village_street?.id);
+//                                if (matchingVillage) {
+//                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
+//                                }
+//                            }, 100);
+//                        }
+                } else if (record.panchayat?.id) {
+                    setSelectedBlockTownId('1'); // Corresponds to "ஊராட்சி"
+//                        setFilteredPanchayats(panchayats.filter(p => String(p.blockDetails) === String(selectedBlockId)));
+//                        if (record.village_street_id) {
+//                            setTimeout(() => { // Small delay
+//                                const matchingVillage = filteredPanchayats.find(v => v.id === record.panchayat?.id);
+//                                if (matchingVillage) {
+//                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
+//                                }
+//                            }, 100);
+//                        }
+//
+//                        setFilteredTownPanchayatVillages(townPanchayatVillages.filter(p => String(p.village_panchayat_id) === String(selectedPanchayatId)));
+                      setSelectedPanchayatId(record.panchayat?.id);
+
+//                        if (record.village_street_id) {
+//                            setTimeout(() => { // Small delay
+//                                const matchingVillage = filteredTownPanchayatVillages.find(v => v.id === record.village_street?.id);
+//                                if (matchingVillage) {
+//                                    setSelectedTownPanchayatVillageId(String(matchingVillage.id));
+//                                }
+//                            }, 100);
+//                        }
+//                        console.log('seting panchayat id......')
+//                        setSelectedPanchayatId(record.panchayat?.id > 0 ? String(record.panchayat?.id) : '0');
+//                        setSelectedTownPanchayatVillageId(record.village_street?.id > 0 ? String(record.village_street?.id) : '0')
+                      setSelectedTownPanchayatVillageId(record.village_street?.id);
+                } else if (!record.town_panchayat?.town_panchayat_id && !record.panchayat?.panchayat_id && !record.revenue_village_id) {
+                    setSelectedBlockTownId('3'); // Corresponds to "இதர" (direct street name input)
+                } else {
+                    setSelectedBlockTownId('none');
+                }
+
+                // For existing file, display its URL
+                if (record.document_attachment) {
+                    setFilePreview(record.document_attachment);
+                } else {
+                    setFilePreview(null);
+                }
+            } catch (error) {
+                console.error('Error fetching service request for edit:', error);
+                setFormError('Failed to load record for editing. Please try again.');
+            } finally {
+                setLoading(false);
             }
-        };
-
-        fetchRecordForEdit();
-    }, [isEditMode, recordId, token, serviceId, townPanchayatVillages]); // Added townPanchayatVillages as dependency for street_name prefill
-
-    // Place this hook in your component
-useEffect(() => {
-  console.log('--- Current FormData State (after update) ---');
-  for (const key in formData) {
-    console.log('key => data ', key, ' --- ', formData[key]);
-  }
-}, [formData]); // The hook runs whenever `formData` changes
+       } else if (!isEditMode) {
+            // Reset form when not in edit mode (for new entries)
+            setFormData({
+                service_id: serviceId || '',
+                service_details_id: '',
+                district_id: '1',
+                block_id: '',
+                town_panchayat_id: '',
+                panchayat_id: '',
+                ward_number: '',
+                //village_name: '',
+                address_line1: '',
+                street_name: '',
+                shop_num: '',
+                ref_number: '',
+                document_attachment: null,
+                first_name: '',
+                last_name: '',
+                registered_mobile: '',
+                contact_mobile: '',
+                email_id: '',
+                amount: '0.00',
+                status: 'pending',
+                created_by: userData?.email,
+                created_date: new Date().toDateString(),
+                updated_by: userData?.email,
+                updated_date: new Date().toDateString()
+            });
+            setSelectedServiceId(serviceId || '');
+            setSelectedDistrictId('1');
+            setSelectedBlockTownId('none');
+            setSelectedBlockId('');
+            setSelectedTownPanchayatId('');
+            setSelectedPanchayatId('');
+            setSelectedTownPanchayatVillageId('');
+            setFilePreview(null);
+            }
+       };
+       fetchRecordForEdit();
+    }, [isEditMode, recordId, token, serviceId]); // Added townPanchayatVillages as dependency for street_name prefill
 
     // --- General Change Handler for all text/select inputs ---
     const handleChange = (e) => {
+    console.log('handleChange method is called ==>',e)
+        e.preventDefault();
         const { name, value, type, files } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-
-        console.log('e target ===? ',e.target)
-        console.log('name ===? ',name, value, ' type == ?', type)
-
 
         if (type === 'file') {
             const file = files[0];
@@ -356,55 +404,54 @@ useEffect(() => {
             // Also update specific dropdown states if they are tied to form data fields
             //if (name === 'service_id') setSelectedServiceId(value);
             if (name === 'service_details_id')
-                {
-                    setSelectedServiceDetailsId(value);
-                    console.log('service details id', value)
-                    console.log('service details id', selectedServiceDetailsId)
-                    }
-            if (name === 'district_id') setSelectedDistrictId(value);
+            {
+                setSelectedServiceDetailsId(value);
+            }
+
             if (name === 'block_id')
             {
                setSelectedBlockId(value);
                // Filter panchayats and revenue villages based on the selected block
                 if (value) {
                     setFilteredPanchayats(panchayats.filter(p => String(p.blockDetails) === String(value)));
+                    setFilteredTownPanchayats(townPanchayats.filter(p => String(p.blockDetails) === String(value)));
                 } else {
                     setFilteredPanchayats([]);
                 }
                 // Reset dependent dropdowns
                 setFilteredTownPanchayatVillages([]);
-                setFormData(prev => ({...prev,street_name: 'இதர-B'}));
-            }  
-            else if (name === 'town_panchayat_id') 
+            }
+
+            if (name === 'town_panchayat_id')
             {
               setSelectedTownPanchayatId(value);
-            
-               setSelectedPanchayatId(value);
+              setFilteredTownPanchayatVillages([]);
                if (value) {
                     setFilteredTownPanchayatVillages(townPanchayatVillages.filter(rv => String(rv.town_panchayat_id) === String(value)));
                 } else {
                     setFilteredTownPanchayatVillages([]);
                 }
-               setFormData(prev => ({...prev,street_name: 'இதர-TP'}));
+               //setFormData(prev => ({...prev,town_panchayat_id: value}));
             }
-            else if (name === 'panchayat_id') 
+
+            if (name === 'panchayat_id')
             {
-              setSelectedPanchayatId(value);
-               if (value) {
+                setSelectedPanchayatId(value);
+                if (value) {
+                console.log(name ,    ' ====', value)
                     setFilteredTownPanchayatVillages(townPanchayatVillages.filter(rv => String(rv.village_panchayat_id) === String(value)));
                 } else {
                     setFilteredTownPanchayatVillages([]);
                 }
-                setFormData(prev => ({...prev,street_name: 'இதர-P'}));
+                //setFormData(prev => ({...prev,panchayat_id: value}));
             }
-            else if (name === 'village_street_id') 
+
+            if (name === 'village_street_id')
             {
               setSelectedTownPanchayatVillageId(value); // Assuming this is also a form field
             }
-            else if(name === 'amount') {
-                console.log('Amount edit....')
 
-                console.log('Amount edit....')
+            if(name === 'amount') {
                 // Use a regular expression to allow only numbers and a single decimal point
                 const validValue = value.replace(/[^0-9.]/g, '');
                 const parts = validValue.split('.');
@@ -419,6 +466,26 @@ useEffect(() => {
             }
         }
     };
+
+//    const onTownPanchayatChange = (e) => {
+//        e.preventDefault();
+//        const { name, value, type, files } = e.target;
+//        setFormData(prev => ({ ...prev, [name]: value }));
+//
+//        console.log('Town Panchayat change event called.....')
+//        setSelectedBlockId(selectedBlockId);
+//        if (name === 'town_panchayat_id')
+//            { console.log(name ,    ' ====', value)
+//              setSelectedTownPanchayatId(value);
+//              setFilteredTownPanchayatVillages([]);
+//               if (value) {
+//                    setFilteredTownPanchayatVillages(townPanchayatVillages.filter(rv => String(rv.town_panchayat_id) === String(value)));
+//                } else {
+//                    setFilteredTownPanchayatVillages([]);
+//                }
+//               //setFormData(prev => ({...prev,town_panchayat_id: value}));
+//            }
+//      };
 
     // Formats the value when the user tabs out or clicks away
     const handleBlur = (e) => {
@@ -470,8 +537,12 @@ useEffect(() => {
             const submitData = new FormData();
             // --- IMPORTANT: APPEND ALL YOUR DATA TO submitData HERE ---
             // This is where you actually add key-value pairs to your FormData object
-            submitData.append('district_id', selectedDistrictId);
-            submitData.append('service_id', serviceId);
+            //submitData.append('district_id', selectedDistrictId);
+            submitData.append('district', selectedDistrictId);
+            //submitData.append('service_id', serviceId);
+            submitData.append('service_details', selectedServiceDetailsId);
+
+
             // For new records, ensure service_id is explicitly set
             if (!isEditMode && serviceId) {
                 submitData.append('service_details_id', selectedServiceDetailsId);
@@ -483,12 +554,7 @@ useEffect(() => {
                 if (key !== 'document_attachment' && formData[key] !== null && formData[key] !== undefined) {
                     submitData.append(key, formData[key]);
                 }
-                // if(key === 'street_name' && formData[key] !== '') {
-                //     submitData.append('street_name', 'null1');
-                // }
-                if(selectedBlockTownId === '3') {
-                     submitData.append('block_id', '2');
-                }
+
                 console.log('submit key => data ', key, ' --- ', formData[key])
             }
 
@@ -497,7 +563,24 @@ useEffect(() => {
                 console.log('FILE EXISTS.....');
                 submitData.append('document_attachment', formData.document_attachment, formData.document_attachment.name);
             }
+
             if (isEditMode && recordId) {
+                console.log(' edit mode called.......')
+               if(selectedBlockTownId === '1') {
+                 submitData.append('block', selectedBlockId);
+                 submitData.append('panchayat', selectedPanchayatId);
+                 submitData.append('village_street', selectedTownPanchayatVillageId);
+                }
+
+                if(selectedBlockTownId === '2') {
+                     submitData.append('block', selectedBlockId);
+                     submitData.append('town_panchayat', selectedTownPanchayatId);
+                     submitData.append('village_street', selectedTownPanchayatVillageId);
+                }
+
+                if(selectedBlockTownId === '3') {
+                     //submitData.append('street_name', value);
+                }
                 console.log('FormData Contents:');
                 for (var pair of submitData.entries()) {
                     console.log(pair[0]+ ': ' + pair[1]);
@@ -669,9 +752,9 @@ useEffect(() => {
                                 onInput={handleChange} // HIGHLIGHT: Bind onChange
                                 required
                             >
-                                <option value="">ஊராட்சியைக் தேர்ந்தெடுக்கவும்</option>
+                                <option value="">ஊராட்சியைத் தேர்ந்தெடுக்கவும்</option>
                                 {filteredPanchayats.map(panchayat => (
-                                    <option key={panchayat.id} value={panchayat.id}>{panchayat.name}</option>
+                                    <option key={panchayat.id} value={panchayat.id}>{panchayat?.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -679,22 +762,40 @@ useEffect(() => {
                 )}
 
                 {selectedBlockTownId === '2' && ( // "பேரூராட்சி"
-                    <div className="col-12 col-md-4">
-                        <label htmlFor="town_panchayat_id" className="form-label">பேரூராட்சி</label>
-                        <select
-                            id="town_panchayat_id"
-                            name="town_panchayat_id"
-                            className="form-select"
-                            value={selectedTownPanchayatId} // HIGHLIGHT: Bind value
-                            onInput={handleChange} // HIGHLIGHT: Bind onChange
-                            required
-                        >
-                            <option value="">பேரூராட்சியைக் தேர்ந்தெடுக்கவும்</option>
-                            {townPanchayats.map(tp => (
-                                <option key={tp.id} value={tp.id}>{tp.name}</option>
-                            ))}
-                        </select>
-                    </div>
+                    <>
+                         <div className="col-12 col-md-4">
+                                <label htmlFor="block_id" className="form-label">ஒன்றியம்</label>
+                                <select
+                                    id="block_id"
+                                    name="block_id"
+                                    className="form-select"
+                                    value={selectedBlockId} // HIGHLIGHT: Bind value
+                                    onInput={handleChange} // HIGHLIGHT: Bind onChange
+                                    required
+                                >
+                                    <option value="">ஒன்றியத்தைத் தேர்ந்தெடுக்கவும்</option>
+                                    {blocks.map(block => (
+                                        <option key={block.id} value={block.block_id}>{block.name}</option>
+                                    ))}
+                                </select>
+                        </div>
+                        <div className="col-12 col-md-4">
+                            <label htmlFor="town_panchayat_id" className="form-label">பேரூராட்சி</label>
+                            <select
+                                id="town_panchayat_id"
+                                name="town_panchayat_id"
+                                className="form-select"
+                                value={selectedTownPanchayatId}
+                                onInput={handleChange}
+                                required
+                            >
+                                <option value="">பேரூராட்சியைத் தேர்ந்தெடுக்கவும்</option>
+                                {filteredTownPanchayats.map(tp => (
+                                    <option key={tp.town_panchayat_id} value={tp.town_panchayat_id}>{tp.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                     </>
                 )}
                 
                 {/* village_steet_id / street_name */}
@@ -720,7 +821,7 @@ useEffect(() => {
                 <div className="col-12 col-md-4">
                     <label htmlFor="ward_number" className="form-label">வார்டு எண்</label>
                     <input
-                        type="text"
+                        type="number"
                         id="ward_number"
                         name="ward_number"
                         className="form-control"
@@ -745,7 +846,7 @@ useEffect(() => {
                 
                 {selectedBlockTownId === '3' && ( // "இதர" (direct street name input)
                     <div className="col-12 col-md-4">
-                        <label htmlFor="street_name" className="form-label">தெரு பெயர் (இதர)</label>
+                        <label htmlFor="street_name" className="form-label">இதர தெரு பெயர்</label>
                         <input
                             type="text"
                             id="street_name"

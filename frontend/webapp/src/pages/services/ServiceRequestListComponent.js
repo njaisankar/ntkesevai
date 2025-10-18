@@ -127,10 +127,10 @@ const ServiceRequestList = ({ serviceId, userData }) => {
     // --- Table Columns Definition ---
     const columns = useMemo(
         () => [
-            { header: "ID", accessorKey: "id" },
-            { header: "வேலைகள் தலைப்பு", accessorKey: "service_detail_name" }, // Adjusted based on common API responses
-            { header: "தலைப்பு", accessorKey: "district_id" },
-            { header: "வேலைகள்", accessorKey: "service_details_id" },
+//            { header: "ID", accessorKey: "id" },
+//            { header: "வேலைகள் தலைப்பு", accessorKey: "service_detail_name" }, // Adjusted based on common API responses
+//            { header: "தலைப்பு", accessorKey: "service_details.service_name" },
+            { header: "வேலைகள்", accessorKey: "service_details.name" },
             { header: "கடை எண்", accessorKey: "shop_num" },
             { header: "குறிப்பு எண்", accessorKey: "ref_number" },
             { header: "தொகை", accessorKey: "amount" },
@@ -139,13 +139,13 @@ const ServiceRequestList = ({ serviceId, userData }) => {
             { header: "பதிவு செய்யப்பட்ட கைபேசி", accessorKey: "registered_mobile" },
             { header: "தொடர்பு எண்", accessorKey: "contact_mobile" },
             { header: "பயனாளியின் மின்னஞ்சல்", accessorKey: "email_id" },
-            { header: "ஒன்றியம் / பேரூராட்சி", accessorKey: "block_id" },
-            { header: "மற்றவை", accessorKey: "town_panchayat_id" },
-            { header: "ஊராட்சி", accessorKey: "panchayat_id" },
-            { header: "வருவாய் கிராமம்", accessorKey: "revenue_village_id" },
-            { header: "கிராமத்தின் பெயர்", accessorKey: "village_name" },
-            { header: "முகவரி வரி 1", accessorKey: "address_line1" },
-            { header: "தெரு பெயர்கள்", accessorKey: "street_name" },
+            { header: "ஒன்றியம்", accessorKey: "block.name" },
+            { header: "பேரூராட்சி", accessorKey: "town_panchayat.name" },
+            { header: "ஊராட்சி", accessorKey: "panchayat?.name" },
+            // { header: "வருவாய் கிராமம்", accessorKey: "revenue_village_id" },
+            { header: "தெரு/கிராமத்தின் பெயர்", accessorKey: "village_street.village_street_name" },
+            { header: "முகவரி வரி", accessorKey: "address_line1" },
+            { header: "இதர தெரு பெயர்", accessorKey: "street_name" },
             {
                 header: "சான்றிதழை பதிவிறக்கு",
                 accessorKey: "document_attachment",

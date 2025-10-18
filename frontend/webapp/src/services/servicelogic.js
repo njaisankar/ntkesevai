@@ -35,7 +35,7 @@ const fetchData = async (endpoint, options = {}, token = null) => {
         const isFormData = options.body instanceof FormData;
         const method = options.method ? options.method.toUpperCase() : 'GET';
         const hasBody = ['POST', 'PUT', 'PATCH'].includes(method);
-        console.log('Is form data', isFormData)
+
         const content_type = !isFormData || options.body === 'undefined' ? CONTENT_TYPE_JSON : null
         const headers = new Headers();
 
@@ -154,7 +154,7 @@ export const getServiceDetails = async  (token, serviceid) => {
     return response;
 }
 
-//Get service request details
+//Get service request details to display into datagrid for selected service id
 export const getServiceRequestDetails = async (token, url, serviceid) => {
     const response = await fetchData(`api/service/servicerequestdetails/${url ? url : ''}&serviceid=${serviceid}`, {
         method: 'GET', token
@@ -173,13 +173,13 @@ export const CreateServiceRequestDetails = async (formData, token) => {
 }
 
 export const getServiceRequestDetailsById = async (id, token) => {
-    const response = await fetchData(`api/service/servicerequestdetails/${id}/`, {
+    const response = await fetchData(`api/service/servicerequestdetails/?id=${id}`, {
         method: 'GET', token
     });
     return await response;
 }
 
-// This is the function you need for updating
+// This is the function you need for update submit button
 export const UpdateServiceRequestDetails = async (recordId, formData, token) => {
     const response = await fetchData(`api/service/servicerequestdetails/${recordId}/`, {
         method: 'PUT', // Changed method from POST to PUT
@@ -257,7 +257,6 @@ export const getTownPanchayatVillageStreetDetails = async (token, url) => {
  * @returns {Promise<any>} A promise that resolves with the parsed JSON data.
  */
 async function handleResponse(response) {
-    console.log('handle response ', response)
     // Check if the response is successful (e.g., status 2xx)
     const isSuccess = response.ok;
 
