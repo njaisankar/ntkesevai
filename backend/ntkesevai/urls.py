@@ -19,21 +19,14 @@ from django.urls import include, path
 from django.shortcuts import redirect
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework import routers
-from tutorial.quickstart.views import views
-from .webapi.views import DistrictViewSet, ServiceRequestViewSet, HomePageViewSet, SocialMediaViewSet, ContactsViewSet, UserViewSet,GroupViewSet
-from .webapi.views import api_root, ServiceView,Service1View, ServiceDetailsView, RevenueVillageView
+#from tutorial.quickstart.views import views
+from ntkesevai.webapi.services.users import views as user_views
+from ntkesevai.webapi.services.home import views as home_views
+from ntkesevai.webapi.services.master import views as master_views
+from ntkesevai.webapi.services.servicerequest import views as servicerequest_views
+from django.conf import settings
+from django.conf.urls.static import static
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'groups', GroupViewSet)
-# router.register(r'services', ServiceView.as_view())
-# router.register(r'services', Service1View)
-# router.register(r'services', ServiceDetailsView)
-#router.register(r'services', RevenueVillageView, basename="\\")
-router.register(r'DistrictDetails', DistrictViewSet,basename="NTKESevai1")
-router.register('ServiceRequestDetails', ServiceRequestViewSet,basename="NTKESevai2")
-router.register('HomePageDetails', HomePageViewSet)
-router.register('SocialMediaDeails', SocialMediaViewSet)
-router.register('ContactDetails', ContactsViewSet)
 
 def redirect_root(request):
     return redirect('/api/services/')
@@ -42,12 +35,32 @@ def redirect_root(request):
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    #path('services', include(api_root)),
+    path('api/', include(user_views.urlpatterns)),
+    path('api/home/', include(home_views.urlPatterns)),
+    path('api/GetLogin/', user_views.CustomAuthToken.as_view(), name='GetLogin'),
+    path('api/forgotpassword/', user_views.ForgotPasswordView.as_view(), name='forgot-password'),
+    path('api/resetpassword/', user_views.ResetPasswordView.as_view(), name='reset-password'),
+            
     path('api-auth/login/', obtain_auth_token),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/services/', ServiceView.as_view(), name='service-list'),
-    path('api/services1/', Service1View.as_view(), name='service-list1'),
-    path('api/servicesdetails/', ServiceDetailsView.as_view(), name='service-list2'),
-    path('api/revenuevillagelist/', RevenueVillageView.as_view(), name='service-list2'),
+    
+    path('api/service/', include(servicerequest_views.urlPatterns)),
+    path('api/service/services/', servicerequest_views.ServiceWithMappingView.as_view(), name='service-list'),
+    path('api/service/services1/', servicerequest_views.ServiceWithoutMappingView.as_view(), name='service-list1'),
+    path('api/service/servicesdetails/', servicerequest_views.ServiceDetailsView.as_view(), name='service-list2'),
+    path('api/service/serviceslinks/', servicerequest_views.ServiceLinksView.as_view(), name='service-links'),
+    path('api/service/serviceseditrequest/', servicerequest_views.ServiceRequestForEditRecordView.as_view(), name='service-request-edit'),
+
+    path('api/master/', include(master_views.urlPatterns)),
+    path('api/master/blocklist/', master_views.BlockView.as_view(), name='block-list'),
+    path('api/master/townpanchayatlist/', master_views.TownPanchayatView.as_view(), name='town-panchayat-list'),
+    path('api/master/panchayatlist/', master_views.PanchayatView.as_view(), name='panchayat-list'),
+    path('api/master/revenuevillagelist/', master_views.RevenueVillageView.as_view(), name='revenue-village-list'),
+    path('api/master/townvillagestreetlist/', master_views.VillageStreetView.as_view(), name='village-street-list'),
+
     path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    #urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

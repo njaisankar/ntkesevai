@@ -1,0 +1,9 @@
+/* In your CSS file */
+.sortable-header {
+    cursor: pointer;
+    user-select: none; /* Prevents text highlighting while clicking fast */
+}
+
+.sortable-header:hover {
+    background-color: #f0f0f0; /* Optional: adds a visual hover effect */
+}

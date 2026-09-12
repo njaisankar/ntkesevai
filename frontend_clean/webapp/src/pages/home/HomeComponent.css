@@ -1,0 +1,237 @@
+p h1 h2 h3 {
+  font-family: 'Mukta Malar', sans-serif;
+}
+
+.grid-item {
+  padding: 10px;
+}
+
+.welcomeClass
+{
+  background-color: black !important; color: wheat; padding-bottom: 35px;
+}
+
+.whiteColorHeading
+{
+  color: #ffffff;
+}
+
+.appHeading{
+  background-color: #0f0d0dd2; border-radius: 5px;
+}
+
+.appSubHeading{
+font-size: small;
+}
+
+.carouselBackground {
+  background-color: black; 
+}
+
+.carouselBackground1 {
+  background-color: black; 
+  border-radius: 50%;
+}
+
+.img1height{
+  height: 20px;
+}
+ 
+.background-slider {
+  width: 100%; /* Or a specific width */
+  height: 100vh; /* Or a specific height (e.g., 500px) */
+  overflow: hidden; /* Prevent content from overflowing */
+  position: relative;
+  display: block !important; /* !important is used to override react-slick's style */
+  flex: 1;
+}
+
+.slide-container { /* Style each individual slide */
+  position: relative; /* Needed for absolute positioning of background */
+  width: 100%;
+  height: 100%;
+}
+
+.background-image {
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-size: cover; /* Cover the entire container */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent image from repeating */
+  transition: 'opacity 1s ease-in-out';
+}
+
+.my-custom-slide.slick-active { /* Target the active slide specifically */
+  /* remove display:none from the active slide */
+  display: block !important; /* !important is used to override react-slick's style */
+}
+
+/* Target the default Slick dot container */
+.slick-dots li {
+  width: 20px; /* Increase width */
+  height: 20px; /* Increase height */
+  margin: 0 10px; /* Adjust spacing as needed */
+}
+
+/* Target the active dot */
+.slick-dots li.slick-active {
+  width: 25px; /* Increase active dot size */
+  height: 25px;
+  color: #17762f;
+}
+
+/* Target the dot buttons themselves (the circles) */
+.slick-dots li button:before {
+  font-size: 20px; /* Increase dot size */
+  color: gray; /* Change dot color */
+}
+
+.slick-dots li.slick-active button:before {
+  color: black; /* Change active dot color */
+}
+
+.appHeading {
+    background-color:#000; border-radius: 10px;
+}
+
+.subHeading
+{
+    color: inherit;
+}
+
+#app {
+    height: 100%;
+}
+
+/*to show as 3 columns for quote*/
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Media Query for Mobile (screens up to 767px wide) */
+@media (max-width: 767px) {
+  .grid-container {
+    grid-template-columns: 1fr; /* Stack into a single column */
+  }
+}
+
+/* Optional: For tablets (screens between 768px and 991px), maybe 2 columns */
+@media (min-width: 768px) and (max-width: 991px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
+  }
+}
+
+.grid-item {
+  padding: 10px;
+}
+
+.welcomeClass
+{
+  background-color: black; color: wheat; padding-bottom: 10px;
+}
+
+.whiteColorHeading{
+  color: #ffffff;
+}
+
+.titleBackground{
+  background-color: #0f0d0dd2; border-radius: 5px;
+}
+
+.carouselBackground {
+  background-color: black; 
+}
+
+/*to show as 3 columns for quote*/
+  html,
+  body {
+    position: relative;
+    height: 100%;
+  }
+  
+body {
+    background: #eee;
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+  
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+  
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+  
+.swiper-slide img {
+  display: block;
+  width: 80%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.autoplay-progress {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--swiper-theme-color);
+}
+
+.autoplay-progress svg {
+  --progress: 0;
+  position: absolute;
+  left: 0;
+  top: 0px;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  stroke-width: 4px;
+  stroke: var(--swiper-theme-color);
+  fill: none;
+  stroke-dashoffset: calc(125.6px * (1 - var(--progress)));
+  stroke-dasharray: 125.6;
+  transform: rotate(-90deg);
+}  
+/*end of slide */
+
+
+/* Button */
+.btn-primary {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 24px;
+  padding: 0.6rem 1.6rem;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.08);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-primary:hover {
+  background: #e53935;
+  color: #fff;
+}

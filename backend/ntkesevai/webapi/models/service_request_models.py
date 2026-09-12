@@ -1,22 +1,22 @@
 from django.db import models
 
 class ServiceRequestDetails(models.Model):
-    id = models.SmallIntegerField(primary_key=True)
-    service_detail_id = models.SmallIntegerField()
-    district_id = models.SmallIntegerField()
-    block_id = models.SmallIntegerField()
-    panchayat_id = models.SmallIntegerField(blank=True, null=True)
-    town_panchayat_id = models.SmallIntegerField(blank=True, null=True)
-    revenue_village_id = models.SmallIntegerField()
-    village_name = models.CharField(max_length=100)
+    id = models.BigAutoField(primary_key=True)
+    service_id = models.BigIntegerField()
+    service_details = models.ForeignKey('ServiceDetails', on_delete=models.CASCADE, null=True, blank=True)
+    district = models.ForeignKey('DistrictDetails', on_delete=models.CASCADE)
+    block = models.ForeignKey('BlockDetails', on_delete=models.CASCADE, null=True, blank=True)
+    town_panchayat = models.ForeignKey('TownPanchayatDetails', on_delete=models.CASCADE, null=True, blank=True)
+    panchayat = models.ForeignKey('PanchayatDetails', on_delete=models.CASCADE, null=True, blank=True)
+    village_street = models.ForeignKey('VillageStreetDetails', on_delete=models.CASCADE, null=True, blank=True)
+    ward_number = models.CharField(max_length=50)
     address_line1 = models.CharField(max_length=100)
-    street_name = models.CharField(max_length=100)
-    job_num = models.CharField(max_length=20, blank=True, null=True)
+    street_name = models.CharField(max_length=100, blank=True, null=True)
     shop_num = models.CharField(max_length=20, blank=True, null=True)
     ref_number = models.CharField(max_length=20, blank=True, null=True)
-    document_attachment = models.CharField(max_length=200, blank=True, null=True)
+    document_attachment = models.FileField(upload_to='media/', max_length=200, blank=True, null=True)
     first_name = models.CharField(max_length=50)
-    fast_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     registered_mobile = models.CharField(max_length=15)
     contact_mobile = models.CharField(max_length=15, blank=True, null=True)
     email_id = models.CharField(max_length=50)
@@ -28,7 +28,7 @@ class ServiceRequestDetails(models.Model):
     updated_date = models.CharField(max_length=50, blank=True, null=True)
     approved_by = models.CharField(max_length=50, blank=True, null=True)
     approved_date = models.CharField(max_length=50, blank=True, null=True)
-
+    constituency = models.ForeignKey('ElectionConstituencyDetails',on_delete=models.SET_NULL,null=True,blank=True,default=91,related_name='service_requests')
     class Meta:
-        manage: False
+        managed = True
         db_table = 'service_request_details'

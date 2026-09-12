@@ -1,0 +1,6 @@
+Django
+requests
+xhtml2pdf
+wkhtmltopdf
+pdf2image
+Pillow

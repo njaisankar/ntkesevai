@@ -1,0 +1,122 @@
+
+# Create the folder inside /var/www/
+sudo mkdir -p /var/www/ntkveerapandi_old_backup
+
+sudo mv /var/www/ntkveerapandi/* /var/www/ntkveerapandi_old_backup/ 2>/dev/null || true
+
+# Verify the backup folder exists and contains files
+ls -la /var/www/ntkveerapandi_old_backup
+
+sudo apt update && sudo apt install unzip -y
+
+# Target the correct path determined in Step 1 (Adjust to /var/www/ if needed)
+TARGET_PATH="/www/ntkveerapandi" 
+
+sudo mv /tmp/backend.zip /tmp/frontend.zip $TARGET_PATH/
+cd $TARGET_PATH
+sudo unzip backend.zip && sudo unzip frontend.zip
+sudo rm backend.zip frontend.zip
+
+
+cd /www/ntkveerapandi/backend
+
+# Make sure venv is active (your prompt should show (venv))
+source venv/bin/activate
+
+# Retry installing your requirements
+pip install -r req.txt
+
+# Ensure Gunicorn and the PostgreSQL adapter are present
+pip install gunicorn psycopg2-binary
+
+Step 1: Create the Background Service File
+sudo nano /etc/systemd/system/ntk-backend.service
+
+[Unit]
+Description=Gunicorn daemon for ntkveerapandi.org DRF API
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/www/ntkveerapandi/backend
+Environment="PATH=/www/ntkveerapandi/backend/venv/bin"
+ExecStart=/www/ntkveerapandi/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 ntkesevai.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+Save and exit (Ctrl+O, Enter, Ctrl+X).
+
+sudo systemctl daemon-reload
+sudo systemctl start ntk-backend
+sudo systemctl enable ntk-backend
+
+sudo systemctl status ntk-backend
+sudo nano /etc/nginx/sites-available/ntkveerapandi.org
+
+server {
+    listen 80;
+    server_name ntkveerapandi.org www.ntkveerapandi.org;
+
+    # 1. React Frontend Static Files
+    location / {
+        root /var/www/ntkveerapandi/frontend/build; # Change to /dist if using Vite
+        index index.html index.htm;
+        try_files $uri /index.html;
+    }
+
+    # 2. Proxy API requests to your running Gunicorn (Port 8000)
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 3. Django Admin Static Assets
+    location /django_static/ {
+        alias /var/www/ntkveerapandi/staticfiles/;
+    }
+}
+
+
+sudo nginx -t && sudo systemctl restart nginx
+Step 1: Clean Up the Permission Warning
+sudo mkdir -p /var/www/.gunicorn && sudo chown -R www-data:www-data /var/www/.gunicorn
+
+sudo systemctl restart ntk-backend
+sudo systemctl status ntk-backend
+
+
+Your backend daemon is fully stable. Now, apply the final proxy instructions to your web server configuration so public visitors reach the upgraded application.
+
+Case A: If Your Primary Proxy Gateway Is Nginx
+sudo nano /etc/nginx/sites-available/ntkveerapandi.org  -- above content
+
+# Link the site to enable it (skip if it was already linked in the past)
+sudo ln -s /etc/nginx/sites-available/ntkveerapandi.org /etc/nginx/sites-enabled/ 2>/dev/null || true
+
+# Test your configuration formatting for errors
+sudo nginx -t
+
+
+nginx: [warn] conflicting server name "ntkveerapandi.org" on 0.0.0.0:80, ignored
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+sudo chown -R www-data:www-data /var/www/ntkveerapandi
+
+
+/var/www/ntkveerapandi/frontend/webapp/
+
+# Pull down your web node packages
+npm install
+
+# Compile the highly optimized production user interface files
+npm run build
+
+
+# Force the build to ignore ESLint warnings/errors
+DISABLE_ESLINT_PLUGIN=true npm run build
+

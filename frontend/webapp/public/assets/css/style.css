@@ -6,15 +6,16 @@ http://www.templatemo.com/tm-490-comila
 
 */
 
-body
-	{
-		background: #ffffff;
+
+html, body, #root
+{
+    background: #ffffff;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 400;
-	}
+    font-size: 100%;
 
-  html {
-  font-size: 100%;
+    height: 100%;
+    margin: 0;
 }
 
 h1,h2,h3 {
@@ -34,7 +35,7 @@ h3 {
 }
 
 p {
-  color: #828282;
+  color: #58151c;
   letter-spacing: 0.8px;
   line-height: 28px;
 }
@@ -247,18 +248,24 @@ footer {
   -webkit-box-align: center;
   -webkit-align-items: center;
       -ms-flex-align: center;
+        justify-content: center;
         align-items: center;
         text-align: center;
-        align-content: center;
-  height: 100vh;
+  
   color: #ffffff; 
   z-index: 1;
-  position: absolute;
-  top: 50px;
+  position: absolute ;
+  transform: translateX(-50%);
+  left: 50%;
+  bottom: 0;
+  padding-bottom: 10px;
+  width: 100%;
+  display: block !important; /* !important is used to override react-slick's style */
 }
 
 #home .home-thumb {
   text-align: center;
+  margin-bottom: 10px;
 }
 
 .home-thumb{
@@ -496,33 +503,56 @@ footer a:hover {
 
 
 /* social icon section  */
+/* Container styling */
 .social-icon {
-  padding: 0;
-  margin: 0;
-}
-
-.social-icon li {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
   list-style: none;
-  display: inline-block;
+  padding: 5px;
 }
 
+/* Base icon styling with glassmorphism */
 .social-icon li a {
-  border-radius: 100px;
-  color: #626262;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
   font-size: 18px;
+  color: #fff; /* High contrast white */
   text-decoration: none;
-  transition: all 0.4s ease-in-out;
-  width: 42px;
-  height: 42px;
-  line-height: 42px;
-  text-align: center;
-  margin-top: 12px;
-  margin-right: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08); /* Semi-transparent white */
+  backdrop-filter: blur(8px); /* Frosty glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.social-icon li a:hover {
-  background-color: #ffffff;
-  color: #111112;
+/* Interaction: Hover & Focus */
+.social-icon li a:hover,
+.social-icon li a:focus-visible {
+  transform: translateY(-8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Brand specific glow effects on hover */
+.social-icon li a.youtube:hover   { color: #FF0000; box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4); }
+.social-icon li a.facebook:hover  { color: #1877F2; box-shadow: 0 10px 25px rgba(24, 119, 242, 0.4); }
+.social-icon li a.instagram:hover { color: #E4405F; box-shadow: 0 10px 25px rgba(228, 64, 95, 0.4); }
+.social-icon li a.twitter:hover   { color: #1DA1F2; box-shadow: 0 10px 25px rgba(29, 161, 242, 0.4); }
+.social-icon li a.whatsapp:hover  { color: #25D366; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); }
+
+/* Screen-reader accessibility */
+.social-icon li a::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: -1;
+  transition: 0.4s;
 }
 
 /* Mobile Responsive */
