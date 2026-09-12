@@ -91,7 +91,7 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         serviceId = self.request.query_params.get('serviceid')
         print('Service Id =>', serviceId)
         queryset = queryset.filter(service_id=serviceId);
-        return queryset.select_related('service_details','district','block','town_panchayat','panchayat', 'village_street' )
+        return queryset.select_related('service_details','district','block','townpanchayat','panchayat', 'village_street' )
     
     def list(self, request, *args, **kwargs):
 

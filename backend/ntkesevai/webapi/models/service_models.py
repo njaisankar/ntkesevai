@@ -5,7 +5,7 @@ class Service(models.Model):
     service_name = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'service'
           
 class ServiceDetails(models.Model):
@@ -16,7 +16,7 @@ class ServiceDetails(models.Model):
     url = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'service_details'
     
 class ServiceLinks(models.Model):
@@ -26,5 +26,5 @@ class ServiceLinks(models.Model):
     url = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "service_links"

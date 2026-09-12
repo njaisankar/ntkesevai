@@ -10,6 +10,8 @@ import RegisterComponent from './pages/register/RegisterComponent.js';
 import ServiceRequestListComponent from './pages/services/ServiceRequestListComponent.js';
 import '@ant-design/v5-patch-for-react-19';
 import { ConfigProvider } from 'antd'; // Make sure this is imported
+//  Import Ant Design CSS reset styles natively
+import 'antd/dist/reset.css';
 import { MessagePopupProvider } from './contexts/MessagePopupContext'; // Import the provider
 
 const App = () => {
@@ -20,7 +22,7 @@ const App = () => {
         <Routes>
           <Route path='/' element={<HomeComponent />} />
           <Route path='/login' element={<LoginComponent />} />
-          <Route path='/forgotpassword' element={<ForgotPasswordComponent />} />
+          <Route path='/forgot-password' element={<ForgotPasswordComponent />} />
           <Route path='/ResetPassword/:token' element={<ResetPasswordComponent />} />
           <Route path='/register' element={<RegisterComponent />} />
           <Route path='/dashboard' element={<DashboardComponent />} />

@@ -5,7 +5,7 @@ from ntkesevai.webapi.models.user_models import UserDetails
 class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetails
-        fields = ['mobile']
+        fields = ['mobile','constituency_id']
 
 class UserSerializer(serializers.ModelSerializer):
     user_details = UserDetailsSerializer(source='userdetails', read_only=True)
@@ -14,8 +14,31 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'user_details','user_details_data']
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'email': {'validators': []},
+            'username': {'validators': []},
+            'mobile': {'validators': []}
         }
+
+    def validate(self, data):
+        print('validate', data)
+        email = data.get('email')
+        user_details = data.get('user_details_data', {})
+        mobile = user_details.get('mobile')
+        print('validate', User)
+        # 1. Check Email
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError({
+                "email": "இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது."
+            })
+
+        # 2. Check Mobile (If mobile is in your User model)
+        if mobile and UserDetails.objects.filter(mobile=mobile).exists():
+            raise serializers.ValidationError({
+                "mobile": "இந்த கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது."
+            })
+
+        return data
 
     def create(self, validated_data):
         user_details_data = validated_data.pop('user_details_data', None)
@@ -45,12 +68,14 @@ class UserSerializer(serializers.ModelSerializer):
             UserDetails.objects.update_or_create(user=instance, defaults=user_details_data)
         return instance
 
+
+
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField()
-    password = serializers.CharField(max_length=20)
+    token = serializers.CharField(required=True)
+    password = serializers.CharField(min_length=8)
     
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

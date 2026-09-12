@@ -1,9 +1,9 @@
 //GET login details
-const ENDPOINT_BASE_URL = 'http://127.0.0.1:8000';
+const ENDPOINT_BASE_URL ='http://127.0.0.1:8000';
 const CONTENT_TYPE_JSON = 'application/json';
 
 //Common function
-const fetchLoginData = async (endpoint, options = {}) => {
+const fetchLoginData = async (endpoint, options = {}, token = null) => {
     try {
         //Create a base headers object with common headers
         const headers = {
@@ -15,6 +15,7 @@ const fetchLoginData = async (endpoint, options = {}) => {
         const body = options.body ? JSON.stringify(options.body) : undefined;
 
         const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, {...options, headers, body});
+
         return await handleResponse(response);
       } catch (error) {
        // Catch network errors (e.g., server is down, no internet connection)
@@ -31,7 +32,7 @@ const fetchLoginData = async (endpoint, options = {}) => {
 const fetchData = async (endpoint, options = {}, token = null) => {
     try {
         console.log('body ',options.body)
-
+        console.log('Authorization token', token)
         const isFormData = options.body instanceof FormData;
         const method = options.method ? options.method.toUpperCase() : 'GET';
         const hasBody = ['POST', 'PUT', 'PATCH'].includes(method);
@@ -41,11 +42,12 @@ const fetchData = async (endpoint, options = {}, token = null) => {
 
           // Add Content-Type header conditionally
           if (hasBody && !isFormData) {
-            headers.set('Content-Type', 'application/json');
+            headers.set('Content-Type', content_type);
           }
 
           // Add Authorization header conditionally
           if (token) {
+            console.log('Authorization token', token)
             headers.set('Authorization', `Token ${token}`);
           }
 
@@ -86,7 +88,7 @@ const fetchData = async (endpoint, options = {}, token = null) => {
     }
 };
 
-const fetchBlobData = async (endpoint, options = {}) => {
+export const fetchBlobData = async (endpoint, options = {}) => {
     try {
         const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, options);
         return await handleResponse(response);
@@ -104,7 +106,7 @@ const fetchBlobData = async (endpoint, options = {}) => {
 
 //Get users
 export const getUsers = async (auth_data) => {
-    const response = await fetchLoginData('api/users/GetLogin/', {
+    const response = await fetchLoginData('api/GetLogin/', {
             method: 'POST',
             body: auth_data
         });
@@ -123,42 +125,62 @@ export const getForgotPassword = async (data) => {
 //restore password - named function
 export const  ResetPassword  = async (data) =>
 {
-    const response = await fetchLoginData('api/resetpassword/', {
-    method: 'POST',
-    body: data
-  });
-  return await response;
+    const endpoint = 'api/resetpassword/';
+    try{
+        const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`, {method: 'POST', headers: {'Content-Type': CONTENT_TYPE_JSON }, body: JSON.stringify(data)});
+//    const response = await fetchLoginData('api/resetpassword/', {
+//    method: 'POST',
+//    body: data
+//  });
+//    alert(response);
+    // Manually log the status before parsing
+    console.log("Status Code:", response);
+    return await response.json();
+  }catch(exception)
+  {
+    return exception;
+  }
 }
 
 export const postUser = async (data) => {
-    const response = await fetchLoginData('/api/users/', {
-        method: 'POST',
-        body: data
-    });
+//    const response = await fetchLoginData('/api/users/', {
+//        method: 'POST', body: data
+//    });
+    const endpoint ='api/users/';
+    let options = {method: 'POST', body: data}
+    const headers = {
+            'Content-Type': CONTENT_TYPE_JSON,
+            ...options.headers, // Allow custom headers to override or extend
+        };
+    console.log('Options ',options)
+     const body = options.body ? JSON.stringify(options.body) : undefined;
+     const response = await fetch(`${ENDPOINT_BASE_URL}/${endpoint}`,{...options, headers, body});
+   console.log('before json',response)
+
     return await response;
 }
 
 //Get service
 export const getMasterService = async (token) => {
     const response = await fetchData('api/service/services/', {
-        method: 'GET', token
-    });
+        method: 'GET' }, token
+    );
     return response;
 }
 
 //Get service details
 export const getServiceDetails = async  (token, serviceid) => {
     const response = await fetchData(`api/service/servicesdetails/?serviceid=${serviceid}`, {
-        method: 'GET', token
-    });
+        method: 'GET'}, token
+    );
     return response;
 }
 
 //Get service request details to display into datagrid for selected service id
 export const getServiceRequestDetails = async (token, url, serviceid) => {
     const response = await fetchData(`api/service/servicerequestdetails/${url ? url : ''}&serviceid=${serviceid}`, {
-        method: 'GET', token
-    });
+        method: 'GET'}, token
+    );
         console.log('ddd', response)
     return await response;
 }
@@ -166,16 +188,16 @@ export const getServiceRequestDetails = async (token, url, serviceid) => {
 export const CreateServiceRequestDetails = async (formData, token) => {
     const response = await fetchData('api/service/servicerequestdetails/', {
         method: 'POST',
-        body: formData, token
-    });
+        body: formData}, token
+    );
 
     return await response;
 }
 
 export const getServiceRequestDetailsById = async (id, token) => {
     const response = await fetchData(`api/service/servicerequestdetails/?id=${id}`, {
-        method: 'GET', token
-    });
+        method: 'GET'}, token
+    );
     return await response;
 }
 
@@ -183,15 +205,15 @@ export const getServiceRequestDetailsById = async (id, token) => {
 export const UpdateServiceRequestDetails = async (recordId, formData, token) => {
     const response = await fetchData(`api/service/servicerequestdetails/${recordId}/`, {
         method: 'PUT', // Changed method from POST to PUT
-        body: formData, token
-    });
+        body: formData}, token
+    );
     return await response;
 }
 
 export const DeleteServiceRequestDetails = async (recordId, token) => {
     const response = await fetchData(`api/service/servicerequestdetails/${recordId}/`, {
-        method: 'DELETE',token
-    });
+        method: 'DELETE'},token
+    );
     return await response;
 }
 
@@ -202,52 +224,52 @@ export const GenerateCertificate = async (recordId, token) => {
             'authorization': `Token ${token}`
         }
     });
-    return await response;
+    return response;
 }
 
 //Get district details
 export const getDistrictDetails = async (token, url) => {
     const response = await fetchData('api/master/districtdetails/', {
-        method: 'GET',token
-    });
+        method: 'GET'},token
+    );
     return await response;
 }
 
 //Get block details
 export const getBlockDetails = async (token, url) => {
     const response = await fetchData('api/master/blocklist/', {
-        method: 'GET',token
-    });
+        method: 'GET'},token
+    );
     return await response;
 }
 //Get town panchayat details
 export const getTownPanchayatDetails = async (token, url) => {
     const response = await fetchData('api/master/townpanchayatlist/', {
-        method: 'GET',token
-    });
+        method: 'GET'},token
+    );
     return await response;
 }
 
 //Get panchayat details
 export const getPanchayatDetails = async (token, url) => {
     const response = await fetchData('api/master/panchayatlist/', {
-        method: 'GET',token
-    });
+        method: 'GET'},token
+    );
     return await response;
 }
 //Get revenue village details
 export const getRevenueVillages = async (token, url) => {
     const response = await fetchData('api/master/revenuevillagelist/', {
-        method: 'GET',token
-    });
+        method: 'GET'},token
+    );
     return await response;
 }
 
 //Get town panchayat village street details
 export const getTownPanchayatVillageStreetDetails = async (token, url) => {
     const response = await fetchData('api/master/townvillagestreetlist/', {
-        method: 'GET', token
-    });
+        method: 'GET'}, token
+    );
     return await response;
 }
 

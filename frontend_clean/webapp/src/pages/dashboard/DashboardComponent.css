@@ -1,0 +1,322 @@
+body, html {
+    font-family: 'Poppins', Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+}
+
+.app-header,
+.menu-bar,
+.table,
+.table th,
+.table td,
+main.container,
+.app-footer {
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+.app-header {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.12);
+  padding: 1.2rem 2rem;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  display: flex;
+  flex-direction: row;        /* Row layout for header */
+  align-items: center;
+  justify-content: center;    /* Center header content horizontally */
+  text-align: center;
+  position: relative;
+}
+
+.app-header h2 {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0 auto;             /* Center the title */
+  flex: 1;                    /* Take available space */
+}
+
+.profile-area {
+  margin-left: auto;          /* Push profile to the right */
+  display: flex;
+  align-items: center;
+}
+
+.profile-area img {
+  box-shadow: 0 2px 8px rgba(229,57,53,0.12);
+  border: 2px solid #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+/* Menu Bar */
+.menu-bar {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.08);
+  border-bottom: 2px solid #e53935;
+  padding: 0.7rem 0;
+}
+.menu-bar .btn-link {
+  color: #e53935;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.6rem 2.2rem;
+  border-radius: 24px;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  outline: none;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+.menu-bar .active-card,
+.menu-bar .btn-link:hover {
+  background: linear-gradient(90deg, #ffd600 60%, #fffde7 100%);
+  color: #e53935;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.18);
+}
+
+/* Footer */
+.app-footer {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+  text-align: center;
+  padding: 1.1rem 0;
+  font-size: 1rem;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  box-shadow: 0 -2px 8px rgba(229, 57, 53, 0.08);
+}
+
+/* Main container margin and padding */
+main.container {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(229, 57, 53, 0.08);
+  margin: 2rem auto;         /* Top/bottom and centered horizontally */
+  padding: 2rem;
+  min-height: 60vh;
+  max-width: 100%;         /* Optional: limit max width for large screens */
+  overflow: auto;
+}
+
+/* Custom Scrollbar for Table and Page */
+.table-responsive::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  height: 14px;   /* Increased height */
+  width: 14px;    /* Increased width */
+  background: #fffde7;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: #e53935;
+  border-radius: 7px;
+  border: 3px solid #ffd600;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: #fffde7;
+  border-radius: 7px;
+}
+
+/* For Firefox */
+.table-responsive {
+  scrollbar-color: #e53935 #fffde7;
+  scrollbar-width: auto; /* Makes scrollbar thicker */
+}
+
+body {
+  scrollbar-color: #e53935 #fffde7;
+  scrollbar-width: auto;
+}
+
+/* Responsive: Only set min-width for small screens */
+@media (max-width: 1200px) {
+  .table {
+    min-width: 900px;
+  }
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+  margin: 1.5rem 0;          /* Space above and below table */
+  padding: 0.5rem;  
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: auto;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.04);
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+/* Remove table borders */
+.table,
+.table th,
+.table td {
+  border: none !important;
+  box-shadow: none;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: 1rem;       /* Space below table */
+}
+/* Table Header: Vibrant, bold, modern */
+.table thead tr {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+}
+
+/* Make header cells transparent so the row's gradient shows through */
+.table th {
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 1.08rem;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.08);
+}
+/* Common styles for all table data cells (td) */
+.table td {
+    color: #000; /* Black text for readability */
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-size: 1.08rem;
+    padding: 0.85rem 1rem;
+    /* Important: Ensure no overall box-shadow here if you want clean alternating backgrounds */
+}
+
+/* --- New Elegant Alternating Row Colors --- */
+
+/* Styles for the ODD rows (1st, 3rd, 5th, etc.) */
+.table tbody tr:nth-child(odd) td {
+    background-color: #FFFFFF; /* Pure White - for a crisp, clean base */
+    box-shadow: none; /* No shadow for a cleaner look */
+}
+
+/* Styles for the EVEN rows (2nd, 4th, 6th, etc.) */
+.table tbody tr:nth-child(even) td {
+    background-color: #FAF0E6; /* Linen - a soft, warm off-white/beige */
+    box-shadow: none; /* No shadow for a cleaner look */
+}
+/* Row Hover: Slight highlight */
+.table tbody tr:hover {
+  background: #ffd600;         /* Bright yellow highlight */
+  transition: background 0.2s;
+}
+
+/* Pagination: Accent color */
+.pagination .page-link {
+  border-radius: 24px !important;
+  margin: 0 2px;
+  color: #e53935;
+  border: none;
+  background: #fffde7;
+  transition: background 0.2s, color 0.2s;
+}
+.pagination .page-link:hover,
+.pagination .page-item.active .page-link {
+  background: #e53935;
+  color: #fff;
+}
+
+/* Page Size Dropdown */
+.page-size-select {
+  border-radius: 18px;
+  border: 1px solid #ffd600;
+  padding: 0.3rem 1rem;
+  background: #fffde7;
+  color: #e53935;
+  font-weight: 600;
+  margin-left: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .table {
+    min-width: 600px;
+  }
+  .table th, .table td {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.95rem;
+  }
+  .page-size-select {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Button */
+.btn-primary {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 24px;
+  padding: 0.6rem 1.6rem;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.08);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-primary:hover {
+  background: #e53935;
+  color: #fff;
+}
+
+/* src/components/Dashboard.css or your main app.css */
+
+html, body, #root {
+  height: 100%; /* Ensure html, body, and root div take full height */
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-container { /* Or whatever your main wrapper div is */
+  display: flex;
+  flex-direction: column;
+  min-height: 200vh; /* Make sure it takes at least the full viewport height */
+}
+
+.fdashboard-container {
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    min-height: 100vh; /* Ensure it's at least the height of the viewport */
+}
+
+/* 3. Non-scrolling content inside the main area */
+.beneficiary-links-wrapper {
+  /* This item will just take its natural height.
+     No need for special flex properties here.
+  */
+  background-color: beige;
+  padding: 1px; /* Optional: adds some spacing */
+}
+
+.main-content { /* The wrapper around your actual page content (HomeComponent, ServiceRequestList) */
+    flex-grow: 1; /* This is key: it makes the main content area expand to fill available space */
+    display: flex;
+    flex-direction: column;
+    /* Add padding-top if you have a fixed header */
+    padding: 1rem;
+    box-sizing: border-box; /* Ensures padding is included in the height/width */
+}
+
+.scrollable-grid-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.footer {
+  /* No special positioning needed, it will naturally be at the bottom */
+  flex-shrink: 0; /* Prevents the footer from shrinking */
+  background-color: #f8f9fa; /* Example background */
+  padding: 1px 0;
+  text-align: center;
+}

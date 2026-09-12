@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from ntkesevai.webapi.models import DistrictDetails, BlockDetails, TownPanchayatDetails, PanchayatDetails, RevenueVillageDetails, VillageStreetDetails
+from ntkesevai.webapi.models import ElectionConstituencyDetails, DistrictDetails, BlockDetails, TownPanchayatDetails, PanchayatDetails, RevenueVillageDetails, VillageStreetDetails
+
+class ElectionConstituencySerializer(serializers.ModelSerializer):
+    class Meta:
+         model = ElectionConstituencyDetails  # Fields are defined in the model
+         fields = ['id','name']
+
 #district
 class DistrictSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,7 +17,7 @@ class BlockSerializer(serializers.ModelSerializer):
     district_name = serializers.SerializerMethodField()
     class Meta:
         model = BlockDetails
-        fields = ['block_id', 'districtDetails','district_name','name']
+        fields = ['block_id', 'districtDetails','district_name','name','constituency']
 
     def get_district_name(self, obj):
         return obj.districtDetails.name

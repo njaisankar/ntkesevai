@@ -1,0 +1,112 @@
+sudo apt update
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx
+
+
+certbot plugins
+-----------------
+output there is no *niginx so reinsall
+
+Remove
+-----------
+sudo apt-get remove certbot python3-certbot-nginx
+
+Install again
+----------------
+sudo apt-get install certbot python3-certbot-nginx
+
+verify
+certbot plugins
+
+so quick fix with above command attribute error ubuntu jammy known error
+sudo apt-get install --only-upgrade python3-openssl
+
+-----------------------------
+
+sudo apt-get purge certbot python3-certbot-nginx
+
+Install stable snap version
+------------------------------------
+sudo snap install --classic certbot
+
+link the command so that just type certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+certbot --version
+5.5.0
+
+verify
+certbot plugins
+
+sudo certbot --nginx
+
+sudo snap install certbot-dns-nginx
+
+sudo certbot --nginx -d pairchikoodam.com -d pairchikoodam.com
+sudo systemctl reload nginx
+
+
+
+root@srv592531:~# sudo systemctl stop apache2
+root@srv592531:~# sudo systemctl stop nginx
+root@srv592531:~# sudo killall -9 apache2 nginx
+apache2: no process found
+nginx: no process found
+root@srv592531:~# sudo systemctl start apache2
+root@srv592531:~# sudo systemctl start nginx
+
+
+sudo netstat -tulpn | grep -E ':80|:443|:8080'
+
+
+tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN      616943/nginx: maste
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      616943/nginx: maste
+tcp6       0      0 :::8080                 :::*                    LISTEN      616862/apache2
+
+
+
+# Update ntkveerapandi renewal config
+sudo certbot certonly --nginx --cert-name ntkveerapandi.org -d ntkveerapandi.org -d www.ntkveerapandi.org --dry-run
+
+# Update pairchikoodam renewal config
+sudo certbot certonly --nginx --cert-name pairchikoodam.com -d pairchikoodam.com -d www.pairchikoodam.com --dry-run
+Use code with caution.
+
+or
+sudo certbot certonly --nginx --cert-name pairchikoodam.com -d pairchikoodam.com -d www.pairchikoodam.com --force-renewal
+sudo certbot certonly --nginx --cert-name ntkveerapandi.org -d ntkveerapandi.org -d www.ntkveerapandi.org --force-renewal
+
+
+2. Verify the Dry Run
+Now that Certbot knows to use Nginx, try the general renewal test again:
+bash
+sudo certbot renew --dry-run
+Use code with caution.
+
+Why this works:
+Standalone (Old way): Tries to grab port 80 for itself. Since Nginx is running, it fails.
+Nginx Plugin (New way): Talks to Nginx and places the validation file inside your existing web server. Your site stays online during the renewal.
+3. Check for the "Congratulations"
+If the dry run now says "Congratulations, all simulated renewals succeeded," you are officially done! Your server is now fully configured for:
+Nginx (Front Door / SSL)
+Apache (Python/Node on 8080)
+.NET 6 (Kestrel on 5000)
+Auto-Renewing SSL
+Did the dry run succeed after switching to the --nginx method?
+AI responses may include mistakes. Learn more
+
+
+
+# 1. Create a backup folder in your home directory
+mkdir ~/web_configs_backup
+
+# 2. Copy the Nginx site configs
+sudo cp /etc/nginx/sites-available/pairchikoodam ~/web_configs_backup/
+sudo cp /etc/nginx/sites-available/ntkveerapandi ~/web_configs_backup/
+
+# 3. Copy the Apache site config
+sudo cp /etc/apache2/sites-available/ntkveerapandi.conf ~/web_configs_backup/
+
+# 4. Copy the Apache ports config (the one we moved to 8080)
+sudo cp /etc/apache2/ports.conf ~/web_configs_backup/
+

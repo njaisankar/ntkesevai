@@ -14,25 +14,18 @@
         font-size: 18px;
       }
         /* .imgCrt{
-            
             background-image: url("https://bitbucket.org/Narendran_/testing_003/raw/a0741f803faeead5fef90b9b232cbbb50d3511cb/src.jpg");
-          
             background-repeat: no-repeat;
             background-size: 100% 100%;
-            
             margin-left: auto;
             margin-right: auto;
             width: 1000px;
             height: 600px;
         } */
         .imgCrt{
-            
             background-image: url("https://bitbucket.org/Narendran_/testing_003/raw/a0741f803faeead5fef90b9b232cbbb50d3511cb/src.jpg");
-          
             background-repeat: no-repeat;
             background-size: 1000px 600px;
-
-
             position: absolute;
 
             /* margin-left: 50px; */
@@ -42,13 +35,13 @@
         }
         .name{
             position: absolute;
-            top: 213px;
-            left: 300px;
+            top: 210px;
+            left: 210px;
            
         }
         .noteNum{
             position: absolute;
-            top: 215px;
+            top: 213px;
             left: 850px;
         }
         .work{
@@ -58,7 +51,7 @@
         } 
         .rupee{
             position: absolute;
-            top: 343px;
+            top: 340px;
             left: 351px;
         }
         .dated{
@@ -75,7 +68,7 @@
             width: 200px;
             text-align: center;
         }
-        .resiver{
+        .receiver{
             position: absolute;
             top: 492px;
             left: 668px;
@@ -99,7 +92,7 @@
             </span>
 
             <span>
-                <p class="work">{{service_request.job}}</p>
+                <p class="work">{{service_request.service_details.name}}</p>
             </span>
 
             <span>
@@ -113,7 +106,7 @@
                 <p class="register">{{service_request.created_by}}</p>
             </span>
             <span>
-                <p class="resiver">{{service_request.created_by}}</p>
+                <p class="receiver">{{service_request.created_by}}</p>
             </span>
         </div>
     </div>

@@ -28,7 +28,7 @@ class ServiceRequestDetails(models.Model):
     updated_date = models.CharField(max_length=50, blank=True, null=True)
     approved_by = models.CharField(max_length=50, blank=True, null=True)
     approved_date = models.CharField(max_length=50, blank=True, null=True)
-
+    constituency = models.ForeignKey('ElectionConstituencyDetails',on_delete=models.SET_NULL,null=True,blank=True,default=91,related_name='service_requests')
     class Meta:
-        manage: False
+        managed = True
         db_table = 'service_request_details'

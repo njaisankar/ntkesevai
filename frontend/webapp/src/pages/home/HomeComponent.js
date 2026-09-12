@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import './HomeComponent.css';
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect, useState, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import Slider from "react-slick";
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -11,7 +11,7 @@ import 'swiper/css/navigation';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faYoutube, faTwitter, faFacebook, faWhatsappSquare } from '@fortawesome/free-brands-svg-icons';
+import { faYoutube, faTwitter, faFacebook, faWhatsappSquare, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import WOW from "wow.js";
 
 const HomeComponent = (location) => {
@@ -19,7 +19,7 @@ const HomeComponent = (location) => {
   const [wrapSlideData, setSlideData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const copyrightYear = new Date().getFullYear();
   const settings = {
     dots: false, // Hide dots
     infinite: true,
@@ -64,7 +64,7 @@ const HomeComponent = (location) => {
   }
 
   useEffect(() => {
-    const apiUrl = 'http://127.0.0.1:8000/api/home/appdetailslist/';
+    const apiUrl = '/api/home/appdetailslist/';
     //Initialize wow.js
     new WOW({mobile: false}).init();
 
@@ -77,8 +77,8 @@ const HomeComponent = (location) => {
     })
     .then(response => { 
       if(!response.ok){
-        throw new Error('Network response was not ok' + token)
-      }
+          throw new Error('Network response was not ok, status code: ' + response.status)
+        }
      return response.json()
     })
     .then(data => {
@@ -160,18 +160,24 @@ const HomeComponent = (location) => {
                   <div className="offset-md-2 col-md-8 col-sm-12" id="appheading">
                     <div className="home-thumb">
                       {
-                      data.results.map((item,index) => {
-                        if(item.type === "header"){
-                          return(
-                              <>
-                                <h1 key={item.id + 'hed' } className='wow bounceInUp appHeading' data-wow-delay='0.4s'>{item.heading}  </h1>
-                                <h3 key={index + 'subhed'} className='wow bounceInUp appSubHeading' data-wow-delay='0.6s'> {item.sub_heading}</h3>    
-                              </>
-                          )}
-                          else
-                          {
-                            return null;
-                          }
+                      // Inside your map:
+                        // Inside your map:
+                        data.results.map((item, index) => {
+                            if (item.type === "header") {
+                                return (
+                                    /* The key MUST be on this outermost element */
+                                    <Fragment key={item.id || index}>
+                                        <h1 className='wow bounceInUp appHeading' data-wow-delay='0.4s'>
+                                            {item.heading}
+                                        </h1>
+                                        <h3 className='wow bounceInUp appSubHeading' data-wow-delay='0.6s'>
+                                            {item.sub_heading}
+                                        </h3>
+                                    </Fragment>
+                                );
+                            } else {
+                                return null;
+                            }
                         })
                       }
                   </div>
@@ -293,7 +299,7 @@ const HomeComponent = (location) => {
                     <h2 className='whiteColorHeading'>{data.results[7].heading}</h2>
                       <div className="wow fadeInUp" data-wow-delay="0.3s">
                         <p className="whiteColorHeading">{data.results[7].sub_heading}</p>
-                        <p className="copyright-text whiteColorHeading">காப்புரிமை &copy; 2025 நாம் தமிழர் கட்சி, வீரபாண்டி தொகுதி, சேலம் மாவட்டம்.<br />
+                        <p className="copyright-text whiteColorHeading">காப்புரிமை &copy; {copyrightYear} நாம் தமிழர் கட்சி, வீரபாண்டி தொகுதி, சேலம் மாவட்டம்.<br />
                           வடிவமைத்தவர் :  <a rel="nofollow" href="http://pairchikoodam.com/" target="_blank">Pairchikoodam</a></p>
                       </div>
                   </div>
@@ -303,13 +309,34 @@ const HomeComponent = (location) => {
                   <div className="col-md-3 col-sm-4">
                     <h2 className='whiteColorHeading'>தொடர்புக்கு</h2>
                     <p className="wow fadeInUp whiteColorHeading" data-wow-delay="0.6s">
-                    +91 9739856191
+                    +919739856191
                     </p>
                     <ul className="social-icon">
-                      <li><a href="https://ntkveerapandi.org\youtube" className="wow bounceIn" data-wow-delay="1.4s" target='_blank' rel="noreferrer"> <FontAwesomeIcon icon={faYoutube} /> </a></li>
-                      <li><a href="https://ntkveerapandi.org\facebook" className="wow bounceIn" data-wow-delay="0.9s" target='_blank' rel="noreferrer"> <FontAwesomeIcon icon={faFacebook} /> </a></li>
-                      <li><a href="https://x.com/NTK_Veerapandi" className="wow bounceIn" data-wow-delay="1.2s" target='_blank' rel="noreferrer"> <FontAwesomeIcon icon={faTwitter} /> </a></li>  
-                      <li><a href="https://ntkveerapandi.org\whatsup" className="wow bounceIn" data-wow-delay="1.6s" target='_blank' rel="noreferrer"> <FontAwesomeIcon icon={faWhatsappSquare} /> </a></li>
+                      <li>
+                        <a href="https://ntkveerapandi.org" className="youtube" target='_blank' rel="noreferrer" title="வலையொளி">
+                          <FontAwesomeIcon icon={faYoutube} />
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://ntkveerapandi.org" className="facebook" target='_blank' rel="noreferrer" title="முகநூல்">
+                          <FontAwesomeIcon icon={faFacebook} />
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://ntkveerapandi.org" className="instagram" target='_blank' rel="noreferrer" title="படவரி">
+                          <FontAwesomeIcon icon={faInstagram} />
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://x.com" className="twitter" target='_blank' rel="noreferrer" title="கீச்சகம்">
+                          <FontAwesomeIcon icon={faTwitter} />
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://ntkveerapandi.org" className="whatsapp" target='_blank' rel="noreferrer" title="பகிரி">
+                          <FontAwesomeIcon icon={faWhatsappSquare} />
+                        </a>
+                      </li>
                     </ul>
                   </div>
                 </div>

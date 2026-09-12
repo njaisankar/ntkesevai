@@ -65,6 +65,25 @@ class ServiceRequestWriteSerializer(serializers.ModelSerializer):
         source='service_details',
         required=True
     )
+
+    panchayat_id = serializers.PrimaryKeyRelatedField(
+        queryset=PanchayatDetails.objects.all(),
+        source='panchayat',
+        required=False
+    )
+
+    town_panchayat_id = serializers.PrimaryKeyRelatedField(
+        queryset=TownPanchayatDetails.objects.all(),
+        source='town_panchayat',
+        required=False
+    )
+
+    village_street_id = serializers.PrimaryKeyRelatedField(
+        queryset=VillageStreetDetails.objects.all(),
+        source='village_street',
+        required=False
+    )
+
     class Meta:
         model = ServiceRequestDetails
         # Include all fields, the foreign keys will automatically expect IDs

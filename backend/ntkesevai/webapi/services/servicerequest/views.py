@@ -11,12 +11,14 @@ from django.http import FileResponse
 
 from rest_framework.pagination import PageNumberPagination
 
-from ntkesevai.webapi.services.utils.receipt_certificate import generate_certificate
+from ntkesevai.webapi.services.utils.receipt_certificate import generate_certificate as create_certificate_file
 
 from ntkesevai.webapi.models import Service, ServiceDetails, ServiceLinks, ServiceRequestDetails
 from ntkesevai.webapi.services.servicerequest.serializers import ServiceSerializer, ServiceDetailsSerializer, ServiceRequestSerializer,ServiceRequestWriteSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 import logging
+from rest_framework.renderers import JSONRenderer
+from ntkesevai.webapi.renderers import JPEGRenderer
 
 logger = logging.getLogger(__name__)
 
@@ -78,8 +80,10 @@ class ServiceRequestForEditRecordView(APIView):
         return Response(serializer.data)
             
 class ServiceRequestViewSet(viewsets.ModelViewSet):
+    # Add JPEGRenderer to the list
+    renderer_classes = [JSONRenderer, JPEGRenderer]
+
     queryset = ServiceRequestDetails.objects.all()
-    print('edit ', queryset)
     serializer_class = ServiceRequestSerializer
     pagination_class = CustomPagination
     # 💡 This is the critical line you are missing.
@@ -99,22 +103,37 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         return ServiceRequestSerializer
 
     def get_queryset(self):
+        user = self.request.user
+
+        print('get method user details ', user)
         queryset = super().get_queryset()
+        # 1. Role-Based Visibility Filter (Standard Procedure 2026)
+        is_approver = user.groups.filter(name='Approvers_Group').exists()
+
+        if not (user.is_superuser or is_approver):
+            print('super or approver exists')
+            # If user is only a 'Creator', show only their own records
+            # Replace 'created_by' with your actual field name linked to User
+            queryset = queryset.filter(created_by=user.email)
+
+        queryset = self.filter_queryset(queryset)
         serviceId = self.request.query_params.get('serviceid')
+        recordId = self.request.query_params.get('id')
         print('Service Id =>', serviceId)
         if serviceId:
             queryset = queryset.filter(service_id=serviceId);
-        # else:
-        #      recordId = self.request.query_params.get('id')
-        #      queryset = queryset.filter(id=recordId);
-        #      print('Record Id =>', recordId)
+        elif recordId:
+              queryset = queryset.filter(id=recordId);
+              print('Record Id =>', recordId)
+        else:
+            print('No Service Id or Record Id filter applied')
 
         return queryset.select_related('service_details','district','block','town_panchayat','panchayat', 'village_street' )
     
     def list(self, request, *args, **kwargs):
-        print('list method')
-        queryset=self.filter_queryset(self.get_queryset())
-
+        user = request.user
+        print('list method - user ', user)
+        queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset.select_related('service_details','district','block','town_panchayat','panchayat', 'village_street' ))
         if(page is not None):
             ServiceRequestSerializer = self.get_serializer(page, many=True)
@@ -182,21 +201,19 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def generate_certificate(self, request, pk=None):
-        service_request = self.get_object()
-        file_path = generate_certificate(service_request)
-        if not file_path:
-            return HttpResponse("Certificate generation failed.", status=500)
+        try:
+            service_request = self.get_object()
+            file_path = create_certificate_file(service_request)
+            print(f'generated certificate file {file_path}')
+            if not file_path:
+                return HttpResponse("Certificate generation failed.", status=500)
 
-        with open(file_path, 'rb') as f:
-            image_data = f.read()
+            with open(file_path, 'rb') as f:
+                return HttpResponse(f.read(), content_type="image/jpeg")
 
-            # Return the HttpResponse with the correct content type
-        response = HttpResponse(image_data, content_type="image/jpeg")
-        # Optional: Force a download with a filename
-        # response['Content-Disposition'] = 'attachment; filename="certificate.jpg"'
-        return response
-        #return FileResponse(open(file_path, 'rb'), content_type='image/jpeg')
-
+        except Exception as e:
+            print(f"CRITICAL ERROR: {e}") # This will show in your terminal
+            return JsonResponse({'error': str(e)}, status=500)
 router = routers.DefaultRouter()
 router.register(r'servicerequestdetails', ServiceRequestViewSet, basename='servicerequest')
 urlPatterns = router.urls

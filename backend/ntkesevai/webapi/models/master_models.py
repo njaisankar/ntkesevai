@@ -1,12 +1,19 @@
 from django.db import models
 
 # Create your models here.
+class ElectionConstituencyDetails(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    class Meta:
+        managed = True
+        db_table = 'election_constituency'
+
 class DistrictDetails(models.Model):
     district_id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'district_details'
 
 # Create your models here.
@@ -14,9 +21,12 @@ class BlockDetails(models.Model):
     block_id = models.IntegerField(primary_key=True)
     districtDetails = models.ForeignKey(DistrictDetails, on_delete=models.CASCADE, db_column='district_id')
     name = models.CharField(max_length=50, blank=True, null=True)
+    # Link blocks to their respective constituencies
+    constituency = models.ForeignKey('ElectionConstituencyDetails', on_delete=models.SET_NULL, null=True, blank=True,
+                                     default=91, related_name='ElectionConstituencyDetails')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'block_details'
 
     def __str__(self):
@@ -28,7 +38,7 @@ class TownPanchayatDetails(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'town_panchayat_details'
 
     def __str__(self):
@@ -40,7 +50,7 @@ class PanchayatDetails(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'panchayat_details'
 
     def __str__(self):
@@ -53,7 +63,7 @@ class RevenueVillageDetails(models.Model):
     panchayatDetails = models.ForeignKey(PanchayatDetails, on_delete=models.CASCADE, db_column='panchayat_id', null=True, blank=True)
     name = models.CharField(max_length=100)
     class Meta:
-        managed = False
+        managed = True
         db_table = 'revenue_village_details'
     
     def __str__(self):
@@ -68,7 +78,7 @@ class VillageStreetDetails(models.Model):
     village_panchayat_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'village_street_details'
     def __str__(self):
         return f"Village street details {self.id}"
@@ -82,7 +92,7 @@ class HomePageDetails(models.Model):
     type = models.CharField(20)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'homepage_details'
 
 class SocialMediaDetails(models.Model):
@@ -92,7 +102,7 @@ class SocialMediaDetails(models.Model):
     url = models.TextField(100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'social_media_details'
 
 class ContactDetails(models.Model):
@@ -112,5 +122,5 @@ class ContactDetails(models.Model):
     contact_type = models.TextField(20)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'contact_details'
