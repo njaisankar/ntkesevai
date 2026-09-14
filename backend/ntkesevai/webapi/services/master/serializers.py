@@ -20,7 +20,9 @@ class BlockSerializer(serializers.ModelSerializer):
         fields = ['block_id', 'districtDetails','district_name','name','constituency']
 
     def get_district_name(self, obj):
-        return obj.districtDetails.name
+        #return obj.districtDetails.name
+        # Using getattr handles missing/null data gracefully without crashing
+        return getattr(obj.districtDetails, 'name', None)
 
 class TownPanchayatSerializer(serializers.ModelSerializer):
     block_name = serializers.SerializerMethodField()
@@ -29,8 +31,10 @@ class TownPanchayatSerializer(serializers.ModelSerializer):
         fields = ['town_panchayat_id','blockDetails','block_name','name']
 
     def get_block_name(self, obj):
-        return obj.blockDetails.name
-    
+        #return obj.blockDetails.name
+        # Using getattr handles missing/null data gracefully without crashing
+        return getattr(obj.blockDetails, 'name', None)
+
 class PanchayatSerializer(serializers.ModelSerializer):
     block_name = serializers.SerializerMethodField()
     class Meta:
@@ -38,27 +42,35 @@ class PanchayatSerializer(serializers.ModelSerializer):
         fields = ['id','blockDetails','block_name','name']
 
     def get_block_name(self, obj):
-        return obj.blockDetails.name
+        #return obj.blockDetails.name
+        # Using getattr handles missing/null data gracefully without crashing
+        return getattr(obj.blockDetails, 'name', None)
 
 #In this class, fields are defined directly
 class RevenueVillageSerializer(serializers.ModelSerializer):
     block_name = serializers.SerializerMethodField()
-    #townpanchayat_name = serializers.SerializerMethodField()
-    #panchayat_name = serializers.SerializerMethodField()
+    townpanchayat_name = serializers.SerializerMethodField()
+    panchayat_name = serializers.SerializerMethodField()
     class Meta:
-        managed = False
+        #managed = False
         model = RevenueVillageDetails
-        fields = '__all__' #['village_id','blockDetails','block_name', 'townPanchayatDetails', 'townpanchayat_name', 'panchayatDetails','panchayat_name','name']
-        #fields = ['village_id','blockDetails','block_name', 'panchayatDetails','panchayat_name']
+        #fields = '__all__' #['village_id','blockDetails','block_name', 'townPanchayatDetails', 'townpanchayat_name', 'panchayatDetails','panchayat_name','name']
+        fields = ['village_id','blockDetails','block_name', 'panchayatDetails','panchayat_name', 'townPanchayatDetails', 'townpanchayat_name','name']
 
     def get_block_name(self, obj):
-        return obj.blockDetails.name
-    
-    #def get_townpanchayat_name(self, obj):
-    #    return obj.townPanchayatDetails.name
-    
-    #def get_panchayat_name(self, obj):
-    #      return obj.panchayatDetails.name
+        #return obj.blockDetails.name
+        # Using getattr handles missing/null data gracefully without crashing
+        return getattr(obj.blockDetails, 'name', None)
+
+    def get_townpanchayat_name(self, obj):
+        #return obj.townPanchayatDetails.name
+        # Using getattr handles missing/null data gracefully without crashing
+        return getattr(obj.townPanchayatDetails, 'name', None)
+
+    def get_panchayat_name(self, obj):
+        #return obj.panchayatDetails.name
+        # Using getattr handles missing/null data gracefully without crashing
+        return getattr(obj.panchayatDetails, 'name', None)
 
 class TownPanchayatVillageSerializer(serializers.ModelSerializer):
     class Meta:

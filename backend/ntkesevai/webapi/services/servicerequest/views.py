@@ -121,7 +121,10 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         recordId = self.request.query_params.get('id')
         print('Service Id =>', serviceId)
         if serviceId:
-            queryset = queryset.filter(service_id=serviceId);
+            #queryset = queryset.filter(service_id=serviceId);
+            #  Fixed code
+            queryset = queryset.filter(service_details__serviceModel__service_id=serviceId)
+            print('Service Id =>', serviceId)
         elif recordId:
               queryset = queryset.filter(id=recordId);
               print('Record Id =>', recordId)

@@ -19,11 +19,17 @@ class DistrictDetails(models.Model):
 # Create your models here.
 class BlockDetails(models.Model):
     block_id = models.IntegerField(primary_key=True)
-    districtDetails = models.ForeignKey(DistrictDetails, on_delete=models.CASCADE, db_column='district_id')
+    districtDetails = models.ForeignKey(DistrictDetails, on_delete=models.CASCADE, db_column='district_id', null=True, blank=True, related_name='blocks')
     name = models.CharField(max_length=50, blank=True, null=True)
     # Link blocks to their respective constituencies
-    constituency = models.ForeignKey('ElectionConstituencyDetails', on_delete=models.SET_NULL, null=True, blank=True,
-                                     default=91, related_name='ElectionConstituencyDetails')
+    constituency = models.ForeignKey(
+        'ElectionConstituencyDetails', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        default=91, 
+        db_column='constituency_id',
+        related_name='blocks')
 
     class Meta:
         managed = True
@@ -33,8 +39,8 @@ class BlockDetails(models.Model):
         return f"Block details {self.block_id}"
 
 class TownPanchayatDetails(models.Model):
-    town_panchayat_id = models.IntegerField(primary_key=True)
-    blockDetails = models.ForeignKey(BlockDetails, on_delete=models.CASCADE, db_column='block_id')
+    town_panchayat_id = models.AutoField(primary_key=True, db_column='id')
+    blockDetails = models.ForeignKey(BlockDetails, on_delete=models.CASCADE, db_column='block_id', null=True, blank=True, related_name='town_panchayats')
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
@@ -45,8 +51,8 @@ class TownPanchayatDetails(models.Model):
         return f"Town Panchayat details {self.town_panchayat_id}"
 
 class PanchayatDetails(models.Model):
-    id = models.IntegerField(primary_key=True)
-    blockDetails = models.ForeignKey(BlockDetails, on_delete=models.CASCADE, db_column='block_id')
+    id = models.AutoField(primary_key=True)
+    blockDetails = models.ForeignKey(BlockDetails, on_delete=models.CASCADE, db_column='block_id', null=True, blank=True, related_name='panchayats')
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
@@ -58,9 +64,9 @@ class PanchayatDetails(models.Model):
 
 class RevenueVillageDetails(models.Model):
     village_id = models.IntegerField(primary_key=True)
-    blockDetails = models.ForeignKey(BlockDetails, on_delete=models.CASCADE, db_column='block_id')
-    townPanchayatDetails = models.ForeignKey(TownPanchayatDetails, on_delete=models.CASCADE, db_column='town_panchayat_id', null=True, blank=True)
-    panchayatDetails = models.ForeignKey(PanchayatDetails, on_delete=models.CASCADE, db_column='panchayat_id', null=True, blank=True)
+    blockDetails = models.ForeignKey(BlockDetails, on_delete=models.CASCADE, db_column='block_id', null=True, blank=True, related_name='revenue_villages')
+    townPanchayatDetails = models.ForeignKey(TownPanchayatDetails, on_delete=models.CASCADE, db_column='town_panchayat_id', null=True, blank=True, related_name='revenue_villages')
+    panchayatDetails = models.ForeignKey(PanchayatDetails, on_delete=models.CASCADE, db_column='panchayat_id', null=True, blank=True, related_name='revenue_villages')
     name = models.CharField(max_length=100)
     class Meta:
         managed = True
